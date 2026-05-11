@@ -28,17 +28,24 @@
                 <li <?php if (View::checkForActiveController($filename, "dashboard")) { echo ' class="active" '; } ?> >
                     <a href="<?php echo Config::get('URL'); ?>dashboard/index">Dashboard</a>
                 </li>
+
                 <li <?php if (View::checkForActiveController($filename, "note")) { echo ' class="active" '; } ?> >
                     <a href="<?php echo Config::get('URL'); ?>note/index">My Notes</a>
                 </li>
+
+                <?php if (Session::get("user_account_type") == 7) : ?>
+                    <li <?php if (View::checkForActiveControllerAndAction($filename, "register/index")) { echo ' class="active" '; } ?> >
+                        <a href="<?php echo Config::get('URL'); ?>register/index">Register</a>
+                    </li>
+                <?php endif; ?>
+
             <?php } else { ?>
+
                 <!-- for not logged in users -->
                 <li <?php if (View::checkForActiveControllerAndAction($filename, "login/index")) { echo ' class="active" '; } ?> >
                     <a href="<?php echo Config::get('URL'); ?>login/index">Login</a>
                 </li>
-                <li <?php if (View::checkForActiveControllerAndAction($filename, "register/index")) { echo ' class="active" '; } ?> >
-                    <a href="<?php echo Config::get('URL'); ?>register/index">Register</a>
-                </li>
+
             <?php } ?>
         </ul>
 
