@@ -47,12 +47,11 @@ class RegisterController extends Controller
     /**
      * Verify user after activation mail link opened
      * @param int $user_id user's id
-     * @param string $user_activation_verification_code user's verification token
      */
-    public function verify($user_id, $user_activation_verification_code)
+    public function verify($user_id)
     {
-        if (isset($user_id) && isset($user_activation_verification_code)) {
-            RegistrationModel::verifyNewUser($user_id, $user_activation_verification_code);
+        if (isset($user_id)) {
+            RegistrationModel::verifyNewUser($user_id);
             $this->View->render('register/verify');
         } else {
             Redirect::to('login/index');
