@@ -3,7 +3,6 @@
 
     <div class="box">
 
-        <!-- echo out the system feedback (error and success messages) -->
         <?php $this->renderFeedbackMessages(); ?>
 
         <h3>What happens here ?</h3>
@@ -21,6 +20,7 @@
                     <td>Username</td>
                     <td>User's email</td>
                     <td>Activated ?</td>
+                    <td>Group</td>
                     <td>Link to user's profile</td>
                     <td>suspension Time in days</td>
                     <td>Soft delete</td>
@@ -38,6 +38,19 @@
                         <td><?= $user->user_name; ?></td>
                         <td><?= $user->user_email; ?></td>
                         <td><?= ($user->user_active == 0 ? 'No' : 'Yes'); ?></td>
+                        <td>
+                        <form action>
+                        <!-- GROUPD -->
+                        </form>
+                            <select name="user_account_type">
+                                <?php foreach($this->groups as $group) { ?>
+                                    <option value="<?= $group->id;?>" 
+                                        <?php if($user->user_account_type == $group->id) echo 'selected'; ?>>
+                                        <?= htmlspecialchars($group->name); ?>
+                                    </option>
+                                <?php } ?>
+                            </select>
+                        </td>
                         <td>
                             <a href="<?= Config::get('URL') . 'profile/showProfile/' . $user->user_id; ?>">Profile</a>
                         </td>
