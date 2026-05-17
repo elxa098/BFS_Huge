@@ -46,6 +46,31 @@ class AdminModel
     }
 
     /**
+     * Changes user group of user in database
+     * @param mixed $userId
+     * @param mixed $groupId
+     * @return bool
+     */
+    public static function updateUserGroup($userId, $groupId)
+    {
+        $database = DatabaseFactory::getFactory()->getConnection();
+
+        $query = $database->prepare("
+            UPDATE users
+            SET user_account_type = :group_id
+            WHERE user_id = :user_id
+            LIMIT 1
+        ");
+
+        $query->execute([
+            ':group_id' => $groupId,
+            ':user_id' => $userId
+        ]);
+
+        return ($query->rowCount() == 1);
+    }
+
+    /**
      * Simply write the deletion and suspension info for the user into the database, also puts feedback into session
      *
      * @param $userId
