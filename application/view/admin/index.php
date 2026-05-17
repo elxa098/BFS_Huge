@@ -3,7 +3,6 @@
 
     <div class="box">
 
-        <!-- echo out the system feedback (error and success messages) -->
         <?php $this->renderFeedbackMessages(); ?>
 
         <h3>What happens here ?</h3>
@@ -22,6 +21,7 @@
                     <td>User's email</td>
                     <td>Activated ?</td>
                     <td>Link to user's profile</td>
+                    <td>Group</td>
                     <td>suspension Time in days</td>
                     <td>Soft delete</td>
                     <td>Submit</td>
@@ -38,16 +38,28 @@
                         <td><?= $user->user_name; ?></td>
                         <td><?= $user->user_email; ?></td>
                         <td><?= ($user->user_active == 0 ? 'No' : 'Yes'); ?></td>
+                       
                         <td>
                             <a href="<?= Config::get('URL') . 'profile/showProfile/' . $user->user_id; ?>">Profile</a>
                         </td>
                         <form action="<?= config::get("URL"); ?>admin/actionAccountSettings" method="post">
+                            <td>
+                                <select name="user_account_type">
+                                    <?php foreach($this->groups as $group) { ?>
+                                        <option value="<?= $group->id;?>" 
+                                            <?php if($user->user_account_type === $group->id) echo 'selected'; ?>>
+                                            <?= htmlspecialchars($group->name); ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                            </td>
                             <td><input type="number" name="suspension" /></td>
                             <td><input type="checkbox" name="softDelete" <?php if ($user->user_deleted) { ?> checked <?php } ?> /></td>
                             <td>
                                 <input type="hidden" name="user_id" value="<?= $user->user_id; ?>" />
                                 <input type="submit" />
                             </td>
+                            
                         </form>
                     </tr>
                 <?php } ?>
