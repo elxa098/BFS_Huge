@@ -45,7 +45,7 @@
                             <select name="user_account_type">
                                 <?php foreach($this->groups as $group) { ?>
                                     <option value="<?= $group->id;?>" 
-                                        <?php if($user->user_account_type == $group->id) echo 'selected'; ?>>
+                                        <?php if($user->user_account_type === $group->id) echo 'selected'; ?>>
                                         <?= htmlspecialchars($group->name); ?>
                                     </option>
                                 <?php } ?>
