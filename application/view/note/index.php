@@ -16,7 +16,7 @@
             </form>
         </p>
 
-        <?php if ($this->notes) { ?>
+        <?php if ($this->data['notes']) { ?>
             <table class="note-table">
                 <thead>
                 <tr>
@@ -27,7 +27,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                    <?php foreach($this->notes as $key => $value) { ?>
+                    <?php foreach($this->data['notes'] as $key => $value) { ?>
                         <tr>
                             <td><?= $value->note_id; ?></td>
                             <td><?= htmlentities($value->note_text); ?></td>
