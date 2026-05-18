@@ -45,6 +45,58 @@ class UserModel
         return $all_users_profiles;
     }
 
+    public static function getAllUsersWithGroupNames()
+    {
+        $database = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT
+                users.user_id,
+                users.user_name,
+                users.user_email,
+                users.user_active,
+                users.user_has_avatar,
+                users.user_deleted,
+                users.user_account_type,
+                user_groups.name AS group_name
+            FROM users
+            LEFT JOIN user_groups
+                ON users.user_account_type = user_groups.id
+            ORDER BY users.user_name ASC
+        ";
+
+        $query = $database->prepare($sql);
+        $query->execute();
+
+        $users = [];
+
+        foreach ($query->fetchAll() as $user) {
+
+            array_walk_recursive($user, 'Filter::XSSFilter');
+
+            $obj = new stdClass();
+            $obj->user_id = $user->user_id;
+            $obj->user_name = $user->user_name;
+            $obj->user_email = $user->user_email;
+            $obj->user_active = $user->user_active;
+            $obj->user_deleted = $user->user_deleted;
+            $obj->user_has_avatar = $user->user_has_avatar;
+
+            $obj->user_account_type = $user->user_account_type;
+            $obj->group_name = $user->group_name;
+
+            $obj->user_avatar_link =
+                (Config::get('USE_GRAVATAR')
+                    ? AvatarModel::getGravatarLinkByEmail($user->user_email)
+                    : AvatarModel::getPublicAvatarFilePathOfUser($user->user_has_avatar, $user->user_id)
+                );
+
+            $users[] = $obj;
+        }
+
+        return $users;
+    }
+
     /**
      * Gets a user's profile data, according to the given $user_id
      * @param int $user_id The user's id
