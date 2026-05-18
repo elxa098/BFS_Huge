@@ -32,6 +32,10 @@ class UserController extends Controller
         ));
     }
 
+    /**
+     * Shows all users with groups
+     * @return void
+     */
     public function allUsers()
     {
         $users = UserModel::getAllUsersWithGroupNames();

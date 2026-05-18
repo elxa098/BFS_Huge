@@ -1,6 +1,10 @@
 <?php
 class GroupModel
 {
+    /**
+     * Retrieves all user groups from the database
+     * @return array List of all user groups ordered alphabetically by name
+     */
     public static function getAllGroups()
     {
         $database = DatabaseFactory::getFactory()->getConnection();
