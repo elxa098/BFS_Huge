@@ -33,6 +33,10 @@
                     <a href="<?php echo Config::get('URL'); ?>note/index">My Notes</a>
                 </li>
 
+                <li <?php if (View::checkForActiveController($filename, "user")) { echo ' class="active" '; } ?>>
+                    <a href="<?= Config::get('URL'); ?>user/allUsers">Users & Groups</a>
+                </li>
+
                 <?php if (Session::get("user_account_type") == 7) : ?>
                     <li <?php if (View::checkForActiveControllerAndAction($filename, "register/index")) { echo ' class="active" '; } ?> >
                         <a href="<?php echo Config::get('URL'); ?>register/index">Register</a>

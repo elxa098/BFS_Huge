@@ -32,6 +32,13 @@ class UserController extends Controller
         ));
     }
 
+    public function allUsers()
+    {
+        $users = UserModel::getAllUsersWithGroupNames();
+
+        $this->View->render('user/allUsers', array('users' => $users));
+    }
+
     /**
      * Show edit-my-username page
      */
