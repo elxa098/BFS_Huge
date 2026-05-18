@@ -6,6 +6,8 @@
  */
 class View
 {
+    private array $data = [];
+
     /**
      * simply includes (=shows) the view. this is done from the controller. In the controller, you usually say
      * $this->view->render('help/index'); to show (in this example) the view index.php in the folder help.
@@ -16,9 +18,7 @@ class View
     public function render($filename, $data = null)
     {
         if ($data) {
-            foreach ($data as $key => $value) {
-                $this->{$key} = $value;
-            }
+            $this->data = $data;
         }
 
         require Config::get('PATH_VIEW') . '_templates/header.php';
@@ -41,9 +41,7 @@ class View
         }
 
         if ($data) {
-            foreach ($data as $key => $value) {
-                $this->{$key} = $value;
-            }
+            $this->data = $data;
         }
 
         require Config::get('PATH_VIEW') . '_templates/header.php';
