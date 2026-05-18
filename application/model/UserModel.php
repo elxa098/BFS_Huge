@@ -45,6 +45,10 @@ class UserModel
         return $all_users_profiles;
     }
 
+    /**
+     * Retirves all users from the database including their assigned group name
+     * @return array List of user objects with profile and group information
+     */
     public static function getAllUsersWithGroupNames()
     {
         $database = DatabaseFactory::getFactory()->getConnection();

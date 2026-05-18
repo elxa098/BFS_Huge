@@ -25,6 +25,13 @@ class AdminController extends Controller
         );
     }
 
+    /**
+     * Handles admin updates for user acounts indclusing:
+     * - changing user group
+     * - settings sustepnsion time
+     * - soft deleting user accounts
+     * @return void
+     */
     public function actionAccountSettings()
     {
         AdminModel::setAccountSuspensionAndDeletionStatus(
