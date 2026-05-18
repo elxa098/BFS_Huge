@@ -27,7 +27,7 @@
                     <td>Submit</td>
                 </tr>
                 </thead>
-                <?php foreach ($this->users as $user) { ?>
+                <?php foreach ($this->data['users'] as $user) { ?>
                     <tr class="<?= ($user->user_active == 0 ? 'inactive' : 'active'); ?>">
                         <td><?= $user->user_id; ?></td>
                         <td class="avatar">
@@ -45,7 +45,7 @@
                         <form action="<?= config::get("URL"); ?>admin/actionAccountSettings" method="post">
                             <td>
                                 <select name="user_account_type">
-                                    <?php foreach($this->groups as $group) { ?>
+                                    <?php foreach($this->data['groups'] as $group) { ?>
                                         <option value="<?= $group->id;?>" 
                                             <?php if($user->user_account_type === $group->id) echo 'selected'; ?>>
                                             <?= htmlspecialchars($group->name); ?>
