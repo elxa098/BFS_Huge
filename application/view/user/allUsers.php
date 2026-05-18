@@ -1,6 +1,6 @@
 <div class="container">
     <h1>User And Group Overview</h1>
-    <table class="overview-table">
+    <table id="usersTable" class="overview-table">
         <thead>
             <tr>
                 <td>Id</td>
@@ -54,3 +54,9 @@
         <?php } ?>
     </table>
 </div>
+
+<script>
+    $(document).ready(function(){
+        $('#usersTable').DataTable();
+    });
+</script>
