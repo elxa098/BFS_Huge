@@ -4,8 +4,8 @@
  * MessengerController
  * Controlls everything messenger related.
  */
-class MessengerController extends Controller{
-
+class MessengerController extends Controller
+{
     /**
      * Construct this object by extending the basic Controller class.
      */
@@ -22,7 +22,8 @@ class MessengerController extends Controller{
      * Shows messenger options
      * @return void
      */
-    public function index(){
+    public function index()
+    {
         $this->View->render('messenger/index');
     }
 
