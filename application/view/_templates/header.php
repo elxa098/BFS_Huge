@@ -49,6 +49,10 @@
                     </li>
                 <?php endif; ?>
 
+                <li <?php if (View::checkForActiveController($filename, "messenger")) { echo ' class="active" '; } ?>>
+                    <a href="<?= Config::get('URL'); ?>messenger/index">Messenger</a>
+                </li>
+
             <?php } else { ?>
 
                 <!-- for not logged in users -->

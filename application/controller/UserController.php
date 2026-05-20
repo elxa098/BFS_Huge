@@ -44,6 +44,14 @@ class UserController extends Controller
     }
 
     /**
+     * Shows messenger option
+     * @return void
+     */
+    public function messenger(){
+        $this->View->render('user/messenger');
+    }
+
+    /**
      * Show edit-my-username page
      */
     public function editUsername()
