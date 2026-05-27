@@ -14,6 +14,7 @@ class MessengerModel
     public static function getOrCreateConversation($user1, $user2)
     {
         $result = self::getConversationId($user1, $user2);
+ 
         if ($result == NULL){
             $result = self::createNewConversation($user1, $user2);
         }
@@ -32,17 +33,15 @@ class MessengerModel
         $database = DatabaseFactory::getFactory()->getConnection();
 
         $sql = "
-           SELECT u1.conversation_id
-           FROM conversation_participants u1
-           INNER JOIN conversation_participants u2 ON u1.conversation_id = u2.conversation_id
-           WHERE u1.user_id = :user1 
-            AND u2.user_id = :user2
-            AND (
-                SELECT COUNT(*)
-                FROM conversation_participants
-                WHERE conversation_id = u1.converation_id
-            ) = 2
-           LIMIT 1
+            SELECT cp1.conversation_id
+            FROM conversation_participants cp1
+            INNER JOIN conversation_participants cp2
+                ON cp1.conversation_id = cp2.conversation_id
+            WHERE cp1.user_id = :user1
+            AND cp2.user_id = :user2
+            GROUP BY cp1.conversation_id
+            HAVING COUNT(*) = 2
+            LIMIT 1
         ";
 
         $query = $database->prepare($sql);
@@ -82,7 +81,7 @@ class MessengerModel
 
         // add participants
         $sql = "
-            INSERT INTO conversation_participants(converation_id, user_id)
+            INSERT INTO conversation_participants(conversation_id, user_id)
             VALUES 
                 (:conversation_id, :user1),
                 (:conversation_id, :user2)
