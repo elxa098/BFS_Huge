@@ -11,7 +11,7 @@ class MessengerModel
      * @param mixed $user2 id of second user
      * @return int conversation id
      */
-    public function getOrCreateConversation($user1, $user2)
+    public static function getOrCreateConversation($user1, $user2)
     {
         $result = self::getConversationId($user1, $user2);
         if ($result == NULL){
@@ -27,14 +27,14 @@ class MessengerModel
      * @param mixed $user2 id of sencond user
      * @return mixed converation id or NULL
      */
-    private function getConversationId($user1, $user2)
+    private static function getConversationId($user1, $user2)
     {
         $database = DatabaseFactory::getFactory()->getConnection();
 
         $sql = "
            SELECT u1.conversation_id
            FROM conversation_participants u1
-           INNER JOIN conversation_participants u1 ON u1.conversation_id = u2.conversation_id
+           INNER JOIN conversation_participants u2 ON u1.conversation_id = u2.conversation_id
            WHERE u1.user_id = :user1 
             AND u2.user_id = :user2
             AND (
@@ -56,7 +56,7 @@ class MessengerModel
         if($conversationExists){
             return $conversationExists['conversation_id'];
         }
-        
+
         return null;
     }
 
@@ -66,13 +66,13 @@ class MessengerModel
      * @param mixed $user2 id of second user
      * @return int id of new conversation
      */
-    private function createNewConversation($user1, $user2)
+    private static function createNewConversation($user1, $user2)
     {
         $database = DatabaseFactory::getFactory()->getConnection();
 
         // Create new conversation
         $sql = "
-            INSERT INTO conversation()
+            INSERT INTO conversations
             VALUES ();
         ";
 
@@ -91,8 +91,8 @@ class MessengerModel
         $query = $database->prepare($sql);
         $query->execute([
             ':conversation_id' => $conversationId,
-            'user1' => $user1,
-            'user2' => $user2
+            ':user1' => $user1,
+            ':user2' => $user2
         ]);
 
         return $conversationId;
@@ -132,11 +132,11 @@ class MessengerModel
         $database = DatabaseFactory::getFactory()->getConnection();
 
         $sql = "
-            SELECT m.message_id, m.sender_id, u.user_name, m.message_text, m.create_at
+            SELECT m.message_id, m.sender_id, u.user_name, m.message_text, m.created_at
             FROM messages m
-            INNER JOIN user u
+            INNER JOIN users u
                 ON m.sender_id = u.user_id
-            WHERE m.converstaion_id = :conversationId
+            WHERE m.conversation_id = :conversationId
             ORDER BY m.created_at ASC
         ";
 
@@ -157,15 +157,25 @@ class MessengerModel
         $database = DatabaseFactory::getFactory()->getConnection();
 
         $sql = "
-            SELECT c.conversation_id, u.user_id, u.user_name, m.message_text, m.created_at
-            FROM conversation c
+            SELECT
+                c.conversation_id,
+                u.user_id,
+                u.user_name,
+                m.message_text,
+                m.created_at
+
+            FROM conversations c
+
             INNER JOIN conversation_participants cp
                 ON c.conversation_id = cp.conversation_id
+
             INNER JOIN conversation_participants cp2
                 ON c.conversation_id = cp2.conversation_id
-                AND cp2.user_id != :current_user
-            INNER JOIN u
-                ON cp2.user_id = u.userId
+                AND cp2.user_id != :user_id
+
+            INNER JOIN users u
+                ON cp2.user_id = u.user_id
+
             LEFT JOIN messages m
                 ON m.message_id = (
                     SELECT m2.message_id
@@ -174,7 +184,9 @@ class MessengerModel
                     ORDER BY m2.created_at DESC
                     LIMIT 1
                 )
-            WHERE cp.user_id = :userId
+
+            WHERE cp.user_id = :user_id
+
             ORDER BY m.created_at DESC
         ";
 
@@ -225,15 +237,15 @@ class MessengerModel
             INNER JOIN conversation_participants cp
                 ON m.conversation_id = cp.conversation_id
             WHERE cp.user_id = :current_user
-                AND m.sender_id != :currentUser
+                AND m.sender_id != :current_user
                 AND (
-                    cp.last_read IS NULL
+                    cp.last_read_at IS NULL
                     OR m.created_at > cp.last_read_at
                 )
         ";
 
         $query = $database->prepare($sql);
-        $query->execute(['current_user' => $userId]);
+        $query->execute([':current_user' => $userId]);
         $result = $query->fetch();
 
         return $result->unread_count;
@@ -270,7 +282,7 @@ class MessengerModel
      * @param mixed $conversationId
      * @return void
      */
-    public static function deleteConversatioN($conversationId)
+    public static function deleteConversation($conversationId)
     {
         $database = DatabaseFactory::getFactory()->getConnection();
 
@@ -280,7 +292,7 @@ class MessengerModel
         ";
 
         $query = $database->prepare($sql);
-        $query->execute(['conversation_id' => $conversationId]);
+        $query->execute([':conversation_id' => $conversationId]);
 
         return;
     }
