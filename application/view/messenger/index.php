@@ -21,6 +21,29 @@
 
     </div>
 
+    <!-- ===================================================== -->
+    <!-- CREATE GROUP CONVERSATION -->
+    <!-- ===================================================== -->
+    <div class="new-group" style="margin-top:12px;">
+
+        <form method="post"
+              action="<?= Config::get('URL'); ?>messenger/createGroup">
+
+            <div style="margin-bottom:6px;">Select members:</div>
+            <div class="group-users" style="max-height:160px; overflow:auto; border:1px solid #eee; padding:8px;">
+                <?php foreach ($this->data['users'] as $user): ?>
+                    <label style="display:block; margin:4px 0;">
+                        <input type="checkbox" name="users[]" value="<?= $user->user_id; ?>"> <?= htmlspecialchars($user->user_name); ?>
+                    </label>
+                <?php endforeach; ?>
+            </div>
+
+            <button type="submit" style="margin-top:8px;">Create Group</button>
+
+        </form>
+
+    </div>
+
     <hr>
 
     <!-- ===================================================== -->

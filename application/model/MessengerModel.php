@@ -158,35 +158,35 @@ class MessengerModel
         $sql = "
             SELECT
                 c.conversation_id,
-                u.user_id,
-                u.user_name,
-                m.message_text,
-                m.created_at
+                (
+                    SELECT GROUP_CONCAT(u2.user_name SEPARATOR ', ')
+                    FROM conversation_participants cp2
+                    JOIN users u2 ON cp2.user_id = u2.user_id
+                    WHERE cp2.conversation_id = c.conversation_id
+                      AND cp2.user_id != :user_id
+                ) AS user_name,
+                lm.message_text,
+                lm.created_at
 
             FROM conversations c
 
             INNER JOIN conversation_participants cp
                 ON c.conversation_id = cp.conversation_id
 
-            INNER JOIN conversation_participants cp2
-                ON c.conversation_id = cp2.conversation_id
-                AND cp2.user_id != :user_id
-
-            INNER JOIN users u
-                ON cp2.user_id = u.user_id
-
-            LEFT JOIN messages m
-                ON m.message_id = (
-                    SELECT m2.message_id
-                    FROM messages m2
-                    WHERE m2.conversation_id = c.conversation_id
-                    ORDER BY m2.created_at DESC
-                    LIMIT 1
-                )
+            LEFT JOIN (
+                SELECT m2.conversation_id, m2.message_text, m2.created_at
+                FROM messages m2
+                INNER JOIN (
+                    SELECT conversation_id, MAX(created_at) AS max_created
+                    FROM messages
+                    GROUP BY conversation_id
+                ) latest ON m2.conversation_id = latest.conversation_id AND m2.created_at = latest.max_created
+            ) lm
+                ON lm.conversation_id = c.conversation_id
 
             WHERE cp.user_id = :user_id
 
-            ORDER BY m.created_at DESC
+            ORDER BY lm.created_at DESC
         ";
 
         $query = $database->prepare($sql);
@@ -194,6 +194,44 @@ class MessengerModel
         $result = $query->fetchAll();
 
         return $result;
+    }
+
+    /**
+     * Create a conversation and add multiple participants (group chat support)
+     * @param array $userIds
+     * @return int conversation id
+     */
+    public static function createConversationWithParticipants(array $userIds)
+    {
+        if (empty($userIds)) {
+            throw new InvalidArgumentException('At least one user id required');
+        }
+
+        $database = DatabaseFactory::getFactory()->getConnection();
+
+        // create conversation
+        $sql = "INSERT INTO conversations VALUES ();";
+        $query = $database->prepare($sql);
+        $query->execute();
+        $conversationId = $database->lastInsertId();
+
+        // ensure unique user ids and prepare params
+        $userIds = array_values(array_unique(array_map('intval', $userIds)));
+
+        // batch insert participants
+        $placeholders = [];
+        $params = [':conversation_id' => $conversationId];
+        foreach ($userIds as $i => $uid) {
+            $idx = $i + 1;
+            $placeholders[] = "(:conversation_id, :user{$idx})";
+            $params[":user{$idx}"] = $uid;
+        }
+
+        $sql = "INSERT INTO conversation_participants(conversation_id, user_id) VALUES " . implode(', ', $placeholders);
+        $query = $database->prepare($sql);
+        $query->execute($params);
+
+        return $conversationId;
     }
 
     /**
