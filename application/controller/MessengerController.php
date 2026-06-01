@@ -32,17 +32,6 @@ class MessengerController extends Controller
 
         $messages = [];
 
-        if ($conversationId) {
-
-            // safety check
-            if (MessengerModel::hasUserAccessToConversation($conversationId, $currentUserId)) {
-                $messages = MessengerModel::getMessages($conversationId);
-                MessengerModel::markConversationAsRead($conversationId, $currentUserId);
-            } else {
-                $conversationId = null;
-            }
-        }
-
         $this->View->render('messenger/index', [
             'conversations' => MessengerModel::getUserConversation($currentUserId),
             'users' => UserModel::getAllUsersExcept($currentUserId),
@@ -68,7 +57,7 @@ class MessengerController extends Controller
 
         $messages = MessengerModel::getMessages($conversationId);
 
-        // MessengerModel::markConversationAsRead($conversationId, $currentUserId);
+        MessengerModel::markConversationAsRead($conversationId, $currentUserId);
 
         $this->View->render('messenger/chat', [
             'messages' => $messages,
