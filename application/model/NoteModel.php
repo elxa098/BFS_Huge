@@ -40,6 +40,28 @@ class NoteModel
     }
 
     /**
+     * Get a note via mysqli conneciton
+     * @param int $note_id id of the specific note
+     * @return object a single object (the result)
+     */
+    public static function getNoteViaMySqli($note_id)
+    {
+        $user_id = Session::get('user_id');
+
+        $database = DatabaseFactory::getFactory()->getConnectionViaMySqli();
+
+        $sql = "";
+
+        $stmt = $database->prepare($sql);
+        $stmt->bind_param('ii', $user_id, $note_id);
+        $stmt->execute();
+
+        $result = $stmt->get_result();
+
+        return $result->fetch_object();
+    }
+
+    /**
      * Set a note (create a new one)
      * @param string $note_text note text that will be created
      * @return bool feedback (was the note created properly ?)
