@@ -26,26 +26,23 @@
     <!-- ===================================================== -->
     <!-- MAIN LAYOUT -->
     <!-- ===================================================== -->
-    <div class="messenger-layout" style="display:flex; gap:20px;">
+    <div class="messenger-layout">
 
         <!-- ===================================================== -->
         <!-- LEFT: CONVERSATIONS -->
         <!-- ===================================================== -->
-        <div class="conversation-list" style="width:30%;">
+        <div class="conversation-list">
 
             <?php if (!empty($this->data['conversations'])) : ?>
 
                 <?php foreach ($this->data['conversations'] as $conversation) : ?>
 
                     <a class="conversation-item"
-                       href="<?= Config::get('URL'); ?>messenger/chat/<?= $conversation->conversation_id; ?>">
+                       href="<?= Config::get('URL'); ?>messenger/chat/<?= $conversation->conversation_id; ?>"
+                       style="display:block; margin-bottom:10px; padding:12px;">
 
                         <div class="conversation-user">
                             <?= htmlspecialchars($conversation->user_name); ?>
-                        </div>
-
-                        <div class="conversation-preview">
-                            <?= htmlspecialchars($conversation->message_text ?? 'No messages yet'); ?>
                         </div>
 
                     </a>
@@ -55,50 +52,6 @@
             <?php else : ?>
 
                 <p>No conversations yet.</p>
-
-            <?php endif; ?>
-
-        </div>
-
-        <!-- ===================================================== -->
-        <!-- RIGHT: ACTIVE CHAT -->
-        <!-- ===================================================== -->
-        <div class="chat-window" style="width:70%;">
-
-            <?php if (!empty($this->data['messages'])) : ?>
-
-                <div class="discussion">
-
-                    <?php foreach ($this->data['messages'] as $message) : ?>
-
-                        <?php
-                            $isOwn = ($message->sender_id == Session::get('user_id'));
-                        ?>
-
-                        <div class="bubble <?= $isOwn ? 'recipient' : 'sender'; ?>">
-                            <?= htmlspecialchars($message->message_text); ?>
-                        </div>
-
-                    <?php endforeach; ?>
-
-                </div>
-
-                <!-- SEND MESSAGE -->
-                <form method="post"
-                      action="<?= Config::get('URL'); ?>messenger/send/<?= $this->data['selectedConversationId']; ?>">
-
-                    <input type="text"
-                           name="message"
-                           placeholder="Write a message..."
-                           required>
-
-                    <button type="submit">Send</button>
-
-                </form>
-
-            <?php else : ?>
-
-                <p>Select a conversation on the left to start chatting.</p>
 
             <?php endif; ?>
 
