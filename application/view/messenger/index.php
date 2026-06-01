@@ -43,6 +43,12 @@
 
                         <div class="conversation-user">
                             <?= htmlspecialchars($conversation->user_name); ?>
+
+                            <?php if (isset($conversation->unread_count) && $conversation->unread_count > 0): ?>
+                                <span class="notification-badge">
+                                    <?= $conversation->unread_count ?>
+                                </span>
+                            <?php endif; ?>
                         </div>
 
                     </a>

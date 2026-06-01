@@ -50,8 +50,20 @@
                     </li>
                 <?php endif; ?>
 
+                <?php
+                    $currentUserId = Session::get('user_id');
+                    $unreadCount = MessengerModel::getUnreadMessageCount($currentUserId);
+                ?>
                 <li <?php if (View::checkForActiveController($filename, "messenger")) { echo ' class="active" '; } ?>>
-                    <a href="<?= Config::get('URL'); ?>messenger/index">Messenger</a>
+                    <a href="<?= Config::get('URL'); ?>messenger/index">
+                        Messenger
+
+                        <?php if($unreadCount > 0): ?>
+                            <span class="notification" style="background-color: red; color: white; border-radius: 50%; padding: 2px">
+                                <?= $unreadCount ?>
+                            </span>
+                        <?php endif; ?>
+                    </a>
                 </li>
 
             <?php } else { ?>
