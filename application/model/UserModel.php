@@ -397,4 +397,27 @@ class UserModel
         // return one row (we only have one result or nothing)
         return $query->fetch();
     }
+
+    /**
+     * Get all users except one
+     * @param mixed $userId
+     * @return array
+     */
+    public static function getAllUsersExcept($userId)
+    {
+        $database = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT user_id, user_name
+            FROM users
+            WHERE user_id != :user_id
+            ORDER BY user_name ASC
+        ";
+
+        $query = $database->prepare($sql);
+        $query->execute([':user_id' => $userId]);
+        $result = $query->fetchAll();
+
+        return $result;
+    }
 }
