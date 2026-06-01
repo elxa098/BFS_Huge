@@ -276,23 +276,4 @@ class MessengerModel
         return ($query -> rowCount() > 0);
     }
 
-    /**
-     * Delete entire conversation
-     * @param mixed $conversationId
-     * @return void
-     */
-    public static function deleteConversation($conversationId)
-    {
-        $database = DatabaseFactory::getFactory()->getConnection();
-
-        $sql = "
-            DELETE FROM conversations
-            WHERE conversation_id = :conversation_id
-        ";
-
-        $query = $database->prepare($sql);
-        $query->execute([':conversation_id' => $conversationId]);
-
-        return;
-    }
 }
