@@ -61,4 +61,34 @@ class DatabaseFactory
         }
         return $this->database;
     }
+
+    /**
+     * getConnection via mysqli connector
+     * @return mysqli|PDO
+     */
+    public function getConnectionViaMySqli(){
+        if (!$this->database){
+            try{
+                mysqli_report(MYSQLI_REPORT_ERROR | MYSQLI_REPORT_STRICT);
+
+                $this->database = new mysqli(
+                    Config::get('DB_HOST'),
+                    COnfig::get('DB_USER'),
+                    Config::get('DP_PASS'),
+                    Config::get('DB_NAME'),
+                    Config::get('DP_PORT')
+                );
+
+                $this->database->set_charset(Config::get('DB_CHARSET'));
+            }
+            catch (mysqli_sql_exception $e){
+                echo 'Database connection can not be established. Please try again later. <br>';
+                echo 'Error code: ' . $e->getCode();
+
+                exit;
+            }
+        }
+
+        return $this->database;
+    }
 }

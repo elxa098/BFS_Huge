@@ -8,6 +8,7 @@
     <link rel="icon" href="data:;base64,=">
     <!-- CSS -->
     <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/style.css" />
+    <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/messenger.css" />
     <!-- jQuery (required for DataTables) -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!-- DataTables CSS -->
@@ -48,6 +49,22 @@
                         <a href="<?php echo Config::get('URL'); ?>register/index">Register</a>
                     </li>
                 <?php endif; ?>
+
+                <?php
+                    $currentUserId = Session::get('user_id');
+                    $unreadCount = MessengerModel::getUnreadMessageCount($currentUserId);
+                ?>
+                <li <?php if (View::checkForActiveController($filename, "messenger")) { echo ' class="active" '; } ?>>
+                    <a href="<?= Config::get('URL'); ?>messenger/index">
+                        Messenger
+
+                        <?php if($unreadCount > 0): ?>
+                            <span class="notification" style="background-color: red; color: white; border-radius: 50%; padding: 2px">
+                                <?= $unreadCount ?>
+                            </span>
+                        <?php endif; ?>
+                    </a>
+                </li>
 
             <?php } else { ?>
 
