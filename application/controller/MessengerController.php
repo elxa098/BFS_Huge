@@ -87,6 +87,33 @@ class MessengerController extends Controller
     }
 
     /**
+     * Create a new group conversation (multiple participants)
+     * Expects `users[]` in POST. The current user will be added automatically if not present.
+     * @return void
+     */
+    public function createGroup()
+    {
+        $currentUserId = Session::get('user_id');
+
+        $userIds = $_POST['users'] ?? [];
+
+        if (!is_array($userIds) || empty($userIds)) {
+            Redirect::to('messenger/index');
+            return;
+        }
+
+        // ensure current user is included
+        $userIds = array_map('intval', $userIds);
+        if (!in_array($currentUserId, $userIds)) {
+            $userIds[] = $currentUserId;
+        }
+
+        $conversationId = MessengerModel::createConversationWithParticipants($userIds);
+
+        Redirect::to('messenger/chat/' . $conversationId);
+    }
+
+    /**
      * Send message
      * @param mixed $conversationId
      * @return void
