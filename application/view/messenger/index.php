@@ -2,20 +2,26 @@
 
     <h1>Messenger</h1>
 
+    <!-- (removed) CREATE NEW CONVERSATION by user ID input -->
+
     <!-- ===================================================== -->
-    <!-- CREATE NEW CONVERSATION (by user ID input) -->
+    <!-- CREATE GROUP CONVERSATION -->
     <!-- ===================================================== -->
-    <div class="new-conversation">
+    <div class="new-group" style="margin-top:12px;">
 
         <form method="post"
-              action="<?= Config::get('URL'); ?>messenger/createConversation">
+              action="<?= Config::get('URL'); ?>messenger/createGroup">
 
-            <input type="number"
-                   name="user_id"
-                   placeholder="Enter user ID..."
-                   required>
+            <div style="margin-bottom:6px;">Select members:</div>
+            <div class="group-users" style="max-height:160px; overflow:auto; border:1px solid #eee; padding:8px;">
+                <?php foreach ($this->data['users'] as $user): ?>
+                    <label style="display:block; margin:4px 0;">
+                        <input type="checkbox" name="users[]" value="<?= $user->user_id; ?>"> <?= htmlspecialchars($user->user_name); ?>
+                    </label>
+                <?php endforeach; ?>
+            </div>
 
-            <button type="submit">Start chat</button>
+            <button type="submit" style="margin-top:8px;">Create Group</button>
 
         </form>
 

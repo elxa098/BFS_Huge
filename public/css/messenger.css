@@ -1,35 +1,35 @@
 html { font-family: 'PT Sans', Georgia, serif; }
 
-.discussion {
+.discussion .bubble {
 	max-width: 600px;
 	margin: 0 auto;
 	
 	display: flex;
 	flex-flow: column wrap;
 }
-
+.discussion .bubble.sender {
 .discussion > .bubble {
 	border-radius: 1em;
 	padding: 0.25em 0.75em;
 	margin: 0.0625em;
-	max-width: 50%;
+.discussion .bubble.recipient {
 }
 
 .discussion > .bubble.sender {
-	align-self: flex-start;
-	background-color: cornflowerblue;
-	color: #fff;
-}
-.discussion > .bubble.recipient {
-	align-self: flex-end;
-	background-color: #efefef;
+
+.discussion .bubble.sender.first { border-bottom-left-radius: 0.1em; }
+.discussion .bubble.sender.last { border-top-left-radius: 0.1em; }
+.discussion .bubble.sender.middle {
+	border-bottom-left-radius: 0.1em;
+	border-top-left-radius: 0.1em;
 }
 
-.discussion > .bubble.sender.first { border-bottom-left-radius: 0.1em; }
-.discussion > .bubble.sender.last { border-top-left-radius: 0.1em; }
-.discussion > .bubble.sender.middle {
-	border-bottom-left-radius: 0.1em;
- 	border-top-left-radius: 0.1em;
+.discussion .bubble.recipient.first { border-bottom-right-radius: 0.1em; }
+.discussion .bubble.recipient.last { border-top-right-radius: 0.1em; }
+.discussion .bubble.recipient.middle {
+	border-bottom-right-radius: 0.1em;
+	border-top-right-radius: 0.1em;
+}
 }
 
 .discussion > .bubble.recipient.first { border-bottom-right-radius: 0.1em; }
@@ -37,4 +37,17 @@ html { font-family: 'PT Sans', Georgia, serif; }
 .discussion > .bubble.recipient.middle {
 	border-bottom-right-radius: 0.1em;
 	border-top-right-radius: 0.1em;
+}
+
+/* Message item wrapper and sender name */
+.discussion .message-item {
+	display: flex;
+	flex-direction: column;
+	margin: 6px 0;
+}
+
+.discussion .message-sender {
+	font-size: 0.85em;
+	color: #666;
+	margin: 0 6px 4px 6px;
 }
