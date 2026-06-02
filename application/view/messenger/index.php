@@ -2,24 +2,7 @@
 
     <h1>Messenger</h1>
 
-    <!-- ===================================================== -->
-    <!-- CREATE NEW CONVERSATION (by user ID input) -->
-    <!-- ===================================================== -->
-    <div class="new-conversation">
-
-        <form method="post"
-              action="<?= Config::get('URL'); ?>messenger/createConversation">
-
-            <input type="number"
-                   name="user_id"
-                   placeholder="Enter user ID..."
-                   required>
-
-            <button type="submit">Start chat</button>
-
-        </form>
-
-    </div>
+    <!-- (removed) CREATE NEW CONVERSATION by user ID input -->
 
     <!-- ===================================================== -->
     <!-- CREATE GROUP CONVERSATION -->
