@@ -32,17 +32,7 @@ class MessengerModel
     {
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "
-            SELECT cp1.conversation_id
-            FROM conversation_participants cp1
-            INNER JOIN conversation_participants cp2
-                ON cp1.conversation_id = cp2.conversation_id
-            WHERE cp1.user_id = :user1
-            AND cp2.user_id = :user2
-            GROUP BY cp1.conversation_id
-            HAVING COUNT(*) = 2
-            LIMIT 1
-        ";
+        $sql = "CALL get_conversation_id(:user1, :user2);";
 
         $query = $database->prepare($sql);
         $query->execute([
@@ -70,29 +60,14 @@ class MessengerModel
         $database = DatabaseFactory::getFactory()->getConnection();
 
         // Create new conversation
-        $sql = "
-            INSERT INTO conversations
-            VALUES ();
-        ";
-
-        $query = $database->prepare($sql);
-        $query->execute();
-        $conversationId = $database->lastInsertId();
-
-        // add participants
-        $sql = "
-            INSERT INTO conversation_participants(conversation_id, user_id)
-            VALUES 
-                (:conversation_id, :user1),
-                (:conversation_id, :user2)
-        ";
+        $sql = "CALL create_new_conversation(:user1, :user2);";
 
         $query = $database->prepare($sql);
         $query->execute([
-            ':conversation_id' => $conversationId,
             ':user1' => $user1,
             ':user2' => $user2
         ]);
+        $conversationId = $query->fetch()['conversation_id'];
 
         return $conversationId;
     }
@@ -108,10 +83,7 @@ class MessengerModel
     {
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "
-            INSERT INTO messages(conversation_id, sender_id, message_text)
-            VALUES (:conversation_id, :sender_id, :message)
-        ";
+        $sql = "CALL send_message(:conversation_id, :sender_id, :message);";
 
         $query = $database->prepare($sql);
         $query->execute([
@@ -119,6 +91,8 @@ class MessengerModel
             ':sender_id' => $senderId,
             ':message' => $message
         ]);
+
+        return;
     }
 
     /**
@@ -130,14 +104,7 @@ class MessengerModel
     {
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "
-            SELECT m.message_id, m.sender_id, u.user_name, m.message_text, m.created_at
-            FROM messages m
-            INNER JOIN users u
-                ON m.sender_id = u.user_id
-            WHERE m.conversation_id = :conversationId
-            ORDER BY m.created_at ASC
-        ";
+        $sql = "CALL get_all_messenges_from_conversation(:conversationId);";
 
         $query = $database->prepare($sql);
         $query->execute([':conversationId' => $conversationId]);
@@ -155,39 +122,7 @@ class MessengerModel
     {
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "
-            SELECT
-                c.conversation_id,
-                (
-                    SELECT GROUP_CONCAT(u2.user_name SEPARATOR ', ')
-                    FROM conversation_participants cp2
-                    JOIN users u2 ON cp2.user_id = u2.user_id
-                    WHERE cp2.conversation_id = c.conversation_id
-                      AND cp2.user_id != :user_id
-                ) AS user_name,
-                lm.message_text,
-                lm.created_at
-
-            FROM conversations c
-
-            INNER JOIN conversation_participants cp
-                ON c.conversation_id = cp.conversation_id
-
-            LEFT JOIN (
-                SELECT m2.conversation_id, m2.message_text, m2.created_at
-                FROM messages m2
-                INNER JOIN (
-                    SELECT conversation_id, MAX(created_at) AS max_created
-                    FROM messages
-                    GROUP BY conversation_id
-                ) latest ON m2.conversation_id = latest.conversation_id AND m2.created_at = latest.max_created
-            ) lm
-                ON lm.conversation_id = c.conversation_id
-
-            WHERE cp.user_id = :user_id
-
-            ORDER BY lm.created_at DESC
-        ";
+        $sql = "CALL get_conversations_from_user(:user_id);";
 
         $query = $database->prepare($sql);
         $query->execute([':user_id' => $userId]);
@@ -199,7 +134,7 @@ class MessengerModel
     /**
      * Create a conversation and add multiple participants (group chat support)
      * @param array $userIds
-     * @return int conversation id
+     * @return void
      */
     public static function createConversationWithParticipants(array $userIds)
     {
@@ -209,29 +144,12 @@ class MessengerModel
 
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        // create conversation
-        $sql = "INSERT INTO conversations VALUES ();";
+        $sql = "CALL create_conversation_with_participants(:user_ids);";
+
         $query = $database->prepare($sql);
-        $query->execute();
-        $conversationId = $database->lastInsertId();
-
-        // ensure unique user ids and prepare params
-        $userIds = array_values(array_unique(array_map('intval', $userIds)));
-
-        // batch insert participants
-        $placeholders = [];
-        $params = [':conversation_id' => $conversationId];
-        foreach ($userIds as $i => $uid) {
-            $idx = $i + 1;
-            $placeholders[] = "(:conversation_id, :user{$idx})";
-            $params[":user{$idx}"] = $uid;
-        }
-
-        $sql = "INSERT INTO conversation_participants(conversation_id, user_id) VALUES " . implode(', ', $placeholders);
-        $query = $database->prepare($sql);
-        $query->execute($params);
-
-        return $conversationId;
+        $query->execute([':user_ids' => implode(',', $userIds)]);
+        
+        return;
     }
 
     /**
@@ -244,12 +162,7 @@ class MessengerModel
     {
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "
-            UPDATE conversation_participants
-            SET last_read_at = NOW()
-            WHERE conversation_id = :conversation_id 
-                AND user_id = :current_user
-        ";
+        $sql = "CALL mark_conversation_as_read(:current_user, :conversation_id);";
 
         $query = $database->prepare($sql);
         $query->execute([
@@ -268,18 +181,7 @@ class MessengerModel
     {
         $database = DatabaseFactory::getFactory()->getConnection();
         
-        $sql = "
-            SELECT COUNT(*) AS unread_count
-            FROM messages m
-            INNER JOIN conversation_participants cp
-                ON m.conversation_id = cp.conversation_id
-            WHERE cp.user_id = :current_user
-                AND m.sender_id != :current_user
-                AND (
-                    cp.last_read_at IS NULL
-                    OR m.created_at > cp.last_read_at
-                )
-        ";
+        $sql = "CALL total_unread_message_count_per_user(:current_user);";
 
         $query = $database->prepare($sql);
         $query->execute([':current_user' => $userId]);
@@ -298,12 +200,7 @@ class MessengerModel
     {
         $database = DatabaseFactory::getFactory()->getConnection();
 
-        $sql = "
-            SELECT *
-            FROM conversation_participants
-            WHERE conversation_id = :conversation_id
-                AND user_id = :user_id
-        ";
+        $sql = "CALL has_user_access_to_conversation(:user_id, :conversation_id);";
 
         $query = $database->prepare($sql);
         $query->execute([
