@@ -2,13 +2,15 @@
 
 class PicturesController extends Controller
 {
-    private $pathToPictures = ROOT . "/gallery_pictures";
+    private $pathToPictures;
     private $allowedFileTypes = ['jpg', 'jpeg', 'png', 'pdf'];
 
     public function __construct()
     {
         parent::__construct();
         Auth::checkAuthentication();
+
+        $this->pathToPictures = dirname(__DIR__, 2) . "/gallery_pictures";
     } 
     
     /**
@@ -44,7 +46,7 @@ class PicturesController extends Controller
         $destination = $userFolder . "/" . $newFilename;
 
         if (move_uploaded_file($file['tmp_name'], $destination)) {
-            header('Location: ' . URL . 'pictures');
+            header('Location: ' . Config::get('URL') . 'pictures');
             exit;
         } else {
             die('Upload failed.');
