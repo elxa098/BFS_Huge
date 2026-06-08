@@ -39,17 +39,23 @@ class PicturesController extends Controller
 
         $userFolder = $this->pathToPictures . "/" . $currentUser;
         if (!is_dir($userFolder)){
-            mkdir($userFolder, 0777, true);
+            mkdir($userFolder, 0755, true);
         }
 
         $newFilename = uniqid() . '.' . $fileExtension;
         $destination = $userFolder . "/" . $newFilename;
 
         if (move_uploaded_file($file['tmp_name'], $destination)) {
-            header('Location: ' . Config::get('URL') . 'pictures');
-            exit;
+            Redirect::to('pictures');
         } else {
             die('Upload failed.');
+        }
+
+        $success = PicturesModel::uploadPicture($currentUser, $newFilename, $file['size'], '');
+        if ($success){
+            Redirect::to('pictures');
+        } else {
+            die('Database insertion failed');
         }
     }
 
