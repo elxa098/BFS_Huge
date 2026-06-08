@@ -1,6 +1,17 @@
 <div class="container">
-    <h1>Pictures</h1>
+    <h1>Gallery</h1>
+
+    <!-- Upload -->
     <div class="box">
-        
+        <form method="post" enctype="multipart/form-data">
+            <input type="file" name="datei" accept=".jpg,.png,.pdf">
+            <button type="submit">Hochladen</button>
+        </form>
+    </div> 
+    
+    <!-- Display Gallery -->
+    <h2>Your Pictures</h2>
+    <div class="box">
+
     </div>
 </div>
