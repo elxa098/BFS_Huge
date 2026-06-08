@@ -67,7 +67,7 @@
                     </a>
                 </li>
 
-                <li <?php if (View::checkForActiveController($filename, "pictures")) { echo ' class="active" '; } ?>>
+                <li <?php if (View::checkForActiveController($filename, "picture")) { echo ' class="active" '; } ?>>
                     <a href="<?= Config::get('URL'); ?>pictures/index">Gallery</a>
                 </li>
 

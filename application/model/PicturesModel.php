@@ -4,7 +4,7 @@
  * PictureModel
  * Handles all pictures/gallery operations
  */
-class PictureModel
+class PicturesModel
 {
     /**
      * Gets all images from the current user

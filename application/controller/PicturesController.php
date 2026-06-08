@@ -4,7 +4,7 @@
  * PictureController
  * Controlls everything gallery related.
  */
-class PictureController extends Controller
+class PicturesController extends Controller
 {
     /**
      * Construct this object by extending the basic Controller class.
