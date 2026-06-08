@@ -15,10 +15,23 @@ class PicturesModel
         Session::get('user_id');
     }
 
-    public static function uploadPicture($file)
+    public static function uploadPicture(int $user_id, string $name, int $size, string $link)
     {
-        // Handle file upload logic here
-        // Validate the file, move it to the desired location, and save the file path in the database
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            INSERT INTO user_pictures (user_id, name, size, link)
+            VALUES (:user_id, :name, :size, :link)
+        ";
+
+        $query = $conn->prepare($sql);
+        
+        return $query->execute([
+            ':user_id' => $user_id,
+            ':name' => $name,
+            ':size' => $size,
+            ':link' => $link
+        ]);
     }
 
     public static function downloadPicture($pictureId)
