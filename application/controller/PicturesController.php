@@ -22,6 +22,7 @@ class PicturesController extends Controller
         $this->View->render('pictures/index');
     }
 
+    // TODO - no upload when pictures could be saved, forced upload when picture could be saved, try catch
     public function upload()
     {
         if (!isset($_FILES['datei']) || $_FILES['datei']['error'] !== UPLOAD_ERR_OK) {
@@ -51,7 +52,7 @@ class PicturesController extends Controller
         if (move_uploaded_file($file['tmp_name'], $destination)) {
 
             // Upload picture details into database
-            $success = PicturesModel::uploadPicture($currentUser, $newFilename, $file['size'], '');
+            $success = PicturesModel::uploadPicture($currentUser, $newFilename, $file['size'], ''); // TODO - hash link
             if ($success){
                 Redirect::to('pictures');
             } 
