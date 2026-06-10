@@ -8,11 +8,23 @@ class PicturesModel
 {
     /**
      * Gets all images from the current user
-     * @return void
+     * @param mixed $userId
+     * @return array
      */
-    public static function getAllPicturesForUser()
+    public static function getAllPicturesForUser($userId)
     {
-        Session::get('user_id');
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT * FROM user_pictures
+            WHERE user_id = :user_id
+            ORDER BY uploaded_at DESC;
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([':user_id' => $userId]);
+
+        return $query->fetchAll();
     }
 
     public static function uploadPicture(int $user_id, string $name, int $size, string $link)
