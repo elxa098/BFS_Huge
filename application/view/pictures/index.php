@@ -3,7 +3,10 @@
 
     <!-- Upload -->
     <div class="box">
-        <form method="post" enctype="multipart/form-data">
+        <form   method="post" 
+                enctype="multipart/form-data" 
+                action="<?= Config::get('URL'); ?>pictures/upload"
+            >
             <input type="file" name="datei" accept=".jpg,.png,.pdf">
             <button type="submit">Hochladen</button>
         </form>
