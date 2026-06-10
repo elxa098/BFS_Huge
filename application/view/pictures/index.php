@@ -15,6 +15,14 @@
     <!-- Display Gallery -->
     <h2>Your Pictures</h2>
     <div class="box">
+        <?php if (!empty($this->data['pictures'])) : ?>
+            <?php foreach ($this->data['pictures'] as $picture) : ?>
 
+            <img src="<?= Config::get('URL'); ?>pictures/image/<?= $picture->id ?>">
+            
+            <?php endforeach; ?>
+        <?php else : ?>
+            <p>No pictures uploaded yet.</p>
+        <?php endif; ?>
     </div>
 </div>

@@ -27,6 +27,27 @@ class PicturesModel
         return $query->fetchAll();
     }
 
+    /**
+     * Get picture by ID
+     * @param mixed $id
+     * @return bool|mixed|null
+     */
+    public static function getPictureById($id)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT * FROM user_pictures 
+            WHERE id = :id 
+            LIMIT 1;
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([':id' => $id]);
+
+        return $query->fetch();
+    }
+
     public static function uploadPicture(int $user_id, string $name, int $size, string $link)
     {
         $conn = DatabaseFactory::getFactory()->getConnection();

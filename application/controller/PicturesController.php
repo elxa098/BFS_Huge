@@ -19,7 +19,42 @@ class PicturesController extends Controller
      */
     public function index()
     {
-        $this->View->render('pictures/index');
+        $userId = Session::get('user_id');
+
+        $this->View->render('pictures/index',
+            ['pictures' => PicturesModel::getAllPicturesForUser($userId)]
+        );
+    }
+
+    public function image($pictureId)
+    {
+        $userId = Session::get('user_id');
+        $picture = PicturesModel::getPictureById($pictureId);
+
+        if (!$picture) {
+            http_response_code(404);
+            exit('Not found');
+        }
+
+        if ($picture->user_id != $userId) {
+            http_response_code(403);
+            exit('Forbidden');
+        }
+
+        $path = $this->pathToPictures . '/'
+            . $picture->user_id . '/'
+            . $picture->name;
+
+        if (!file_exists($path)) {
+            http_response_code(404);
+            exit('File missing');
+        }
+
+        header('Content-Type: ' . mime_content_type($path));
+        header('Content-Length: ' . filesize($path));
+
+        readfile($path);
+        exit;
     }
 
     // TODO - no upload when pictures could be saved, forced upload when picture could be saved, try catch
