@@ -119,6 +119,39 @@ class PicturesController extends Controller
 
     public function download($pictureId)
     {
+        $userId = Session::get('user_id');
+        $picture = PicturesModel::getPictureById($pictureId);
+
+        if (!$picture) {
+            http_response_code(404);
+            exit('Picture not found');
+        }
+
+        if ($picture->user_id != $userId) {
+            http_response_code(403);
+            exit('Forbidden: You can only download your own pictures');
+        }
+
+        $path = $this->pathToPictures . '/'
+            . $picture->user_id . '/'
+            . $picture->name;
+
+        if (!file_exists($path)) {
+            http_response_code(404);
+            exit('File missing');
+        }
+
+        header('Content-Description: File Transfer');
+        header('Content-Type: ' . mime_content_type($path));
+        header('Content-Disposition: attachment; filename="' . basename($picture->name) . '"');
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Length: ' . filesize($path));
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Expires: 0');
+
+        readfile($path);
+        exit;
     }
 
     public function delete($pictureId)

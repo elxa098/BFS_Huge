@@ -44,9 +44,13 @@
                         <input type="text" value="<?= Config::get('URL'); ?>publicpictures/image/<?= $picture->link ?>" 
                                style="width: 100%; padding: 4px; border: none; border-radius: 3px; font-size: 11px; margin-bottom: 8px;" 
                                readonly onclick="this.select()">
-                        <form method="post" action="<?= Config::get('URL'); ?>pictures/delete/<?= $picture->id ?>" style="display: inline;">
-                            <button type="submit" style="width: 100%; padding: 6px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;" onclick="return confirm('Are you sure you want to delete this picture?');">Delete</button>
-                        </form>
+                        <div style="display: flex; gap: 6px; margin-top: 8px;">
+                            <a href="<?= Config::get('URL'); ?>pictures/download/<?= $picture->id ?>" 
+                               style="flex: 1; display: inline-block; text-align: center; background: #007bff; color: white; padding: 6px 0; border-radius: 3px; text-decoration: none; font-size: 11px;">Download</a>
+                            <form method="post" action="<?= Config::get('URL'); ?>pictures/delete/<?= $picture->id ?>" style="flex: 1; margin: 0;">
+                                <button type="submit" style="width: 100%; padding: 6px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;" onclick="return confirm('Are you sure you want to delete this picture?');">Delete</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
