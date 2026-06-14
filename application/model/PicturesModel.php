@@ -48,6 +48,48 @@ class PicturesModel
         return $query->fetch();
     }
 
+    /**
+     * Get picture by share link
+     * @param string $link
+     * @return bool|mixed|null
+     */
+    public static function getPictureByLink($link)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT * FROM user_pictures 
+            WHERE link = :link 
+            LIMIT 1;
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([':link' => $link]);
+
+        return $query->fetch();
+    }
+
+    /**
+     * Check if share link already exists
+     * @param string $link
+     * @return bool
+     */
+    public static function checkIfLinkExists($link)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT COUNT(*) as count FROM user_pictures 
+            WHERE link = :link
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([':link' => $link]);
+        $result = $query->fetch();
+
+        return $result->count > 0;
+    }
+
     public static function uploadPicture(int $user_id, string $name, int $size, string $link)
     {
         $conn = DatabaseFactory::getFactory()->getConnection();
@@ -75,8 +117,15 @@ class PicturesModel
 
     public static function deletePicture($pictureId)
     {
-        // Handle file deletion logic here
-        // Remove the file from the server and delete the corresponding entry from the database
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            DELETE FROM user_pictures 
+            WHERE id = :id
+        ";
+
+        $query = $conn->prepare($sql);
+        return $query->execute([':id' => $pictureId]);
     }
 
     public static function getSharingLink($pictureId)

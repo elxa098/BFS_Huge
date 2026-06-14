@@ -86,8 +86,11 @@ class PicturesController extends Controller
         // Move picture to saving path
         if (move_uploaded_file($file['tmp_name'], $destination)) {
 
+            // Generate unique hash code for sharing
+            $shareLink = $this->generateUniqueShareLink();
+
             // Upload picture details into database
-            $success = PicturesModel::uploadPicture($currentUser, $newFilename, $file['size'], ''); // TODO - hash link
+            $success = PicturesModel::uploadPicture($currentUser, $newFilename, $file['size'], $shareLink);
             if ($success){
                 Redirect::to('pictures');
             } 
@@ -101,6 +104,18 @@ class PicturesController extends Controller
 
     }
 
+    /**
+     * Generate a unique share link hash code
+     * @return string
+     */
+    private function generateUniqueShareLink()
+    {
+        do {
+            $shareLink = bin2hex(random_bytes(16));
+        } while (PicturesModel::checkIfLinkExists($shareLink));
+
+        return $shareLink;
+    }
 
     public function download($pictureId)
     {
@@ -108,6 +123,36 @@ class PicturesController extends Controller
 
     public function delete($pictureId)
     {
+        $userId = Session::get('user_id');
+        $picture = PicturesModel::getPictureById($pictureId);
+
+        if (!$picture) {
+            http_response_code(404);
+            exit('Picture not found');
+        }
+
+        if ($picture->user_id != $userId) {
+            http_response_code(403);
+            exit('Forbidden: You can only delete your own pictures');
+        }
+
+        $path = $this->pathToPictures . '/'
+            . $picture->user_id . '/'
+            . $picture->name;
+
+        // Delete file from server
+        if (file_exists($path)) {
+            unlink($path);
+        }
+
+        // Delete record from database
+        $success = PicturesModel::deletePicture($pictureId);
+        
+        if ($success) {
+            Redirect::to('pictures');
+        } else {
+            die('Database deletion failed');
+        }
     }
 
     public function share($pictureId)
