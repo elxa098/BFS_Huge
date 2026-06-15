@@ -70,6 +70,10 @@
                     <a href="<?= Config::get('URL'); ?>pictures/index">Gallery</a>
                 </li>
 
+                <li <?php if (View::checkForActiveController($filename,"tictactoe")) { echo ' class="active" '; } ?>>
+                    <a href="<?= Config::get('URL'); ?>tictactoe/index">TicTacToe</a>
+                </li>
+
             <?php } else { ?>
 
                 <!-- for not logged in users -->
