@@ -9,6 +9,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/style.css" />
     <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/messenger.css" />
+    <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/tictactoe.css" />
     <!-- jQuery (required for DataTables) -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!-- DataTables CSS -->

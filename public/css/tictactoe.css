@@ -1,0 +1,21 @@
+.tictactoe-table {
+    width: 80%;
+}
+
+.tictactoe-table td {
+    width: 33.33%;
+    border: 2px solid #333;
+    padding: 0;
+}
+
+.tictactoe-table button {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #76a1d6;
+    cursor: pointer;
+}
+
+.tictactoe-table button:hover {
+    background: #922424;
+}
