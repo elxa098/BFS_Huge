@@ -2,6 +2,7 @@
     <h1>Tic Tac Toe</h1>
 
     <div class="box">
+        <!-- DROPDOWN -->
         <div class="player-selection">
             <label>Play with:</label>
             <select id="opponent">
@@ -16,6 +17,7 @@
         </div>
     </div>
 
+    <!-- GAME BOARD -->
     <table class="tictactoe-table">
         <tr>
             <td><button id="ttt-a1"></button></td>
@@ -35,10 +37,12 @@
     </table>
 
     <div class="box">
+        <!-- STATUS -->
         <div class="game-status">
             <span id="statusLabel">Gegner aussuchen um Spiel zu starten.</span>
         </div>
 
+        <!-- RESET GAME -->
         <div class="actions">
             <button id="resetGame">Spiel zurücksetzen</button>
         </div>
