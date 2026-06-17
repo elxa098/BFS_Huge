@@ -177,4 +177,67 @@ class TicTacToeModel
 
         return $result->id;
     }
+
+    /**
+     * Checks if a position in a game is taken
+     * @param mixed $gameId
+     * @param mixed $position
+     * @return bool
+     */
+    public static function isPositionTaken($gameId, $position)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT 1
+            FROM tictactoe_moves
+            WHERE game_id = :game_id
+            AND position = :position
+            LIMIT 1
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([
+            ':game_id' => $gameId,
+            ':position' => $position
+        ]);
+
+        return (bool) $query->fetchAll();
+    }
+
+    /**
+     * Get the ID of the user which turn it is
+     * @param mixed $gameId
+     */
+    public static function getCurrentTurn($gameId)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT
+                CASE
+                    WHEN COUNT(m.id) % 2 = 0 THEN g.player_x_id
+                    ELSE g.player_o_id
+                END AS current_user_id
+            FROM tictactoe_games g
+            LEFT JOIN tictactoe_moves m
+                ON m.game_id = g.id
+            WHERE g.id = :game_id
+            GROUP BY g.id
+            LIMIT 1
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([
+            ':game_id' => $gameId
+        ]);
+
+        $result = $query->fetch();
+
+        if(!$result){
+            return false;
+        }
+
+        return $result->current_user_id;
+    }
 }
