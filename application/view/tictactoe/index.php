@@ -3,18 +3,21 @@
 
     <div class="box">
         <!-- DROPDOWN -->
-        <div class="player-selection">
-            <label>Play with:</label>
-            <select id="opponent">
-                <option value="">Gegner auswählen</option>
 
-                <?php foreach($this->data['users'] as $user): ?>
-                    <option value="<?php echo htmlspecialchars($user->user_id); ?>">
-                        <?php echo htmlspecialchars($user->user_name); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+        <form method="POST" action="/tictactoe/setOpponent">
+            <div class="player-selection">
+                <label>Play with:</label>
+                <select name="opponentId" id="opponentId" onchange="this.form.submit()">
+                    <option value="">Gegner auswählen</option>
+
+                    <?php foreach($this->data['users'] as $user): ?>
+                        <option value="<?php echo htmlspecialchars($user->user_id); ?>">
+                            <?php echo htmlspecialchars($user->user_name); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </form>
     </div>
 
     <!-- GAME BOARD -->
@@ -43,8 +46,11 @@
         </div>
 
         <!-- RESET GAME -->
-        <div class="actions">
-            <button id="resetGame">Spiel zurücksetzen</button>
-        </div>
+        <form method="POST" action="tictactoe/resetGame">
+            <div class="actions">
+                <button type="submit">Spiel zurücksetzen</button>
+            </div>
+        </form>
+
     </div>
 </div>

@@ -18,4 +18,19 @@ class TicTacToeController extends Controller
     }
 
 
+    public function resetGame()
+    {
+        $currentUserId = Session::get('user_id');
+        $currentOpponent = Session::get('current_opponent');
+
+        $gameId = TicTacToeModel::getGameId($currentUserId, $currentOpponent);
+        TicTacToeModel::deleteGame($gameId);
+    }
+
+    public function setOpponent()
+    {
+        Session::set('current_opponent', Request::post('opponentId'));
+        Redirect::to('tictactoe/index');
+    }
+
 }
