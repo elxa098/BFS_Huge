@@ -4,14 +4,16 @@
     <div class="box">
         <!-- DROPDOWN -->
 
-        <form method="POST" action="/tictactoe/setOpponent">
+        <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/setOpponent">
             <div class="player-selection">
                 <label>Play with:</label>
-                <select name="opponentId" id="opponentId" onchange="this.form.submit()">
-                    <option value="">Gegner auswählen</option>
+
+                <?php $selectedOpponent = Session::get('current_opponent'); ?>
+                <select name="opponentId" id="opponentId" onchange="this.form.submit()" hint="Select opponent">
+                    <option value="" <?php if (empty($selectedOpponent)) { echo 'selected'; } ?>>Gegner auswählen</option>
 
                     <?php foreach($this->data['users'] as $user): ?>
-                        <option value="<?php echo htmlspecialchars($user->user_id); ?>">
+                        <option value="<?php echo htmlspecialchars($user->user_id); ?>" <?php if ($selectedOpponent == $user->user_id) { echo 'selected'; } ?>>
                             <?php echo htmlspecialchars($user->user_name); ?>
                         </option>
                     <?php endforeach; ?>
@@ -21,23 +23,25 @@
     </div>
 
     <!-- GAME BOARD -->
-    <table class="tictactoe-table">
-        <tr>
-            <td><button id="ttt-a1"></button></td>
-            <td><button id="ttt-a2"></button></td>
-            <td><button id="ttt-a3"></button></td>
-        </tr>
-        <tr>
-            <td><button id="ttt-b1"></button></td>
-            <td><button id="ttt-b2"></button></td>
-            <td><button id="ttt-b3"></button></td>
-        </tr>
-        <tr>
-            <td><button id="ttt-c1"></button></td>
-            <td><button id="ttt-c2"></button></td>
-            <td><button id="ttt-c3"></button></td>
-        </tr>
-    </table>
+     <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/playGame">
+        <table class="tictactoe-table">
+            <tr>
+                <td><button type="submit" name="move" value="A1"></button></td>
+                <td><button type="submit" name="move" value="A2"></button></td>
+                <td><button type="submit" name="move" value="A3"></button></td>
+            </tr>
+            <tr>
+                <td><button type="submit" name="move" value="B1"></button></td>
+                <td><button type="submit" name="move" value="B2"></button></td>
+                <td><button type="submit" name="move" value="B3"></button></td>
+            </tr>
+            <tr>
+                <td><button type="submit" name="move" value="C1"></button></td>
+                <td><button type="submit" name="move" value="C2"></button></td>
+                <td><button type="submit" name="move" value="C3"></button></td>
+            </tr>
+        </table>
+    </form>
 
     <div class="box">
         <!-- STATUS -->
@@ -46,11 +50,8 @@
         </div>
 
         <!-- RESET GAME -->
-        <form method="POST" action="tictactoe/resetGame">
-            <div class="actions">
-                <button type="submit">Spiel zurücksetzen</button>
-            </div>
+        <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/resetGame">
+            <button type="submit">Spiel zurücksetzen</button>
         </form>
-
     </div>
 </div>
