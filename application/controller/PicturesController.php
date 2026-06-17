@@ -57,7 +57,6 @@ class PicturesController extends Controller
         exit;
     }
 
-    // TODO - no upload when pictures could be saved, forced upload when picture could be saved, try catch
     public function upload()
     {
         if (!isset($_FILES['datei']) || $_FILES['datei']['error'] !== UPLOAD_ERR_OK) {
@@ -87,10 +86,10 @@ class PicturesController extends Controller
         if (move_uploaded_file($file['tmp_name'], $destination)) {
 
             // Generate unique hash code for sharing
-            $shareLink = $this->generateUniqueShareLink();
+            $hashCode = bin2hex(random_bytes(16));
 
             // Upload picture details into database
-            $success = PicturesModel::uploadPicture($currentUser, $newFilename, $file['size'], $shareLink);
+            $success = PicturesModel::uploadPicture($currentUser, $newFilename, $file['size'], $hashCode);
             if ($success){
                 Redirect::to('pictures');
             } 
@@ -104,17 +103,29 @@ class PicturesController extends Controller
 
     }
 
-    /**
-     * Generate a unique share link hash code
-     * @return string
-     */
-    private function generateUniqueShareLink()
+    public function share($hash)
     {
-        do {
-            $shareLink = bin2hex(random_bytes(16));
-        } while (PicturesModel::checkIfLinkExists($shareLink));
+        $picture = PicturesModel::getPictureByLink($hash);
 
-        return $shareLink;
+        if(!$picture){
+            http_response_code(404);
+            exit ('Not found');
+        }
+
+        $path = $this->pathToPictures .'/'
+                . $picture->user_id . '/'
+                . $picture->name;
+        
+        if(!file_exists($path)){
+            http_response_code(404);
+            exit('File missing');
+        }
+
+        header('Content-Type: ' . mime_content_type($path));
+        header('Content-Length: ' . filesize($path));
+
+        readfile($path);
+        exit;
     }
 
     public function download($pictureId)
@@ -188,7 +199,5 @@ class PicturesController extends Controller
         }
     }
 
-    public function share($pictureId)
-    {
-    }
+    
 }
