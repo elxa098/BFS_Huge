@@ -1,6 +1,5 @@
 <?php
 
-
 class TicTacToeController extends Controller
 {
     public function __construct()
@@ -9,9 +8,14 @@ class TicTacToeController extends Controller
         Auth::checkAuthentication();
     }
 
-    
     public function index()
     {
-        $this->View->render('tictactoe/index');
+        $currentUserId = Session::get('user_id');
+
+        $this->View->render('tictactoe/index', [
+            'users' => UserModel::getAllUsersExcept($currentUserId),
+        ]);
     }
+
+
 }

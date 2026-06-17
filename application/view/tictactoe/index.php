@@ -6,6 +6,12 @@
             <label>Play with:</label>
             <select id="opponent">
                 <option value="">Gegner auswählen</option>
+
+                <?php foreach($this->data['users'] as $user): ?>
+                    <option value="<?php echo htmlspecialchars($user->user_id); ?>">
+                        <?php echo htmlspecialchars($user->user_name); ?>
+                    </option>
+                <?php endforeach; ?>
             </select>
         </div>
     </div>
