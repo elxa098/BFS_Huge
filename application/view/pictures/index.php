@@ -41,7 +41,7 @@
                     <img src="<?= Config::get('URL'); ?>pictures/image/<?= $picture->id ?>">
                     <div style="background: rgba(0,0,0,0.8); color: white; padding: 8px; font-size: 12px; border-radius: 0 0 6px 6px;">
                         <small>Share link:</small><br>
-                        <input type="text" value="<?= Config::get('URL'); ?>publicpictures/image/<?= $picture->link ?>" 
+                        <input type="text" value="<?= Config::get('URL'); ?>pictures/share/<?= $picture->link ?>" 
                                style="width: 100%; padding: 4px; border: none; border-radius: 3px; font-size: 11px; margin-bottom: 8px;" 
                                readonly onclick="this.select()">
                         <div style="display: flex; gap: 6px; margin-top: 8px;">
