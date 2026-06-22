@@ -45,9 +45,8 @@
 
     <div class="box">
         <!-- STATUS -->
-        <div class="game-status">
-            <span id="statusLabel">Gegner aussuchen um Spiel zu starten.</span>
-        </div>
+        <p id="statusLabel"><?php echo htmlspecialchars($this->data['status']); ?></p>
+        
 
         <!-- RESET GAME -->
         <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/resetGame">

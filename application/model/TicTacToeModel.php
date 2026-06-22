@@ -93,6 +93,35 @@ class TicTacToeModel
     }
 
     /**
+     * Gets the winner
+     * @param mixed $gameId
+     */
+    public static function getWinner($gameId)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT winner_id
+            FROM tictactoe_games
+            WHERE id = :game_id
+            LIMIT 1
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([
+            ':game_id' => $gameId
+        ]);
+
+        $result = $query->fetch();
+
+        if(!$result){
+            return false;
+        }
+
+        return $result->winner_id;
+    }
+
+    /**
      * Gets board
      * @param mixed $game_id
      * @return array
@@ -239,5 +268,30 @@ class TicTacToeModel
         }
 
         return $result->current_user_id;
+    }
+
+    /**
+     * Set the current turn in the game
+     * @param mixed $gameId
+     * @param mixed $turn
+     * @return bool
+     */
+    public static function setCurrentTurn($gameId, $turn)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            UPDATE tictactoe_games
+            SET current_turn = :turn
+            WHERE id = :game_id
+        ";
+
+        $query = $conn->prepare($sql);
+        $success = $query->execute([
+            ':turn' => $turn,
+            ':game_id' => $gameId
+        ]);
+
+        return $success;
     }
 }
