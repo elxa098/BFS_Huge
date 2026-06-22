@@ -2,6 +2,7 @@
     <h1>Tic Tac Toe</h1>
 
     <div class="box">
+        <!-- Dropdown -->
         <div class="tictactoe-header-row">
             <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/setOpponent" class="player-selection-form">
                 <div class="player-selection">
@@ -19,12 +20,14 @@
                     </select>
                 </div>
             </form>
-
+            
+            <!-- Status Messages -->
             <div class="status-panel">
                 <p id="statusLabel"><?php echo htmlspecialchars($this->data['status']); ?></p>
             </div>
         </div>
 
+        <!-- Reset Button -->
         <div class="reset-wrapper">
             <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/resetGame">
                 <button type="submit">Spiel zurücksetzen</button>

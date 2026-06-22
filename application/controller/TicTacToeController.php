@@ -1,13 +1,24 @@
 <?php
 
+/**
+ * TicTacToeController
+ * Handle Tic Tac Toe game
+ */
 class TicTacToeController extends Controller
 {
+    /**
+     * Construct this objet extending the basic controller
+     */
     public function __construct()
     {
         parent::__construct();
         Auth::checkAuthentication();
     }
 
+    /**
+     * Show TicTacToe game
+     * @return void
+     */
     public function index()
     {
         $currentUserId = Session::get('user_id');
@@ -88,6 +99,10 @@ class TicTacToeController extends Controller
         Redirect::to('tictactoe');
     }
 
+    /**
+     * Handle game play
+     * @return void
+     */
     public function playGame()
     {
         $userId = Session::get('user_id');
@@ -167,6 +182,10 @@ class TicTacToeController extends Controller
         Redirect::to('tictactoe');
     }
 
+    /**
+     * Checking for winner
+     * @param mixed $gameId
+     */
     private static function checkForWinner($gameId)
     {
         $board = TicTacToeModel::getBoard($gameId);
