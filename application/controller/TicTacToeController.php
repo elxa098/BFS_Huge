@@ -8,7 +8,7 @@ class TicTacToeController extends Controller
         Auth::checkAuthentication();
     }
 
-    public static function index()
+    public function index()
     {
         $currentUserId = Session::get('user_id');
         $opponentId = Session::get('current_opponent');
@@ -61,7 +61,7 @@ class TicTacToeController extends Controller
      * Set opponent ID as environmental variable
      * @return void
      */
-    public static function setOpponent()
+    public function setOpponent()
     {
         Session::set('current_opponent', Request::post('opponentId'));
         Redirect::to('tictactoe');
@@ -71,7 +71,7 @@ class TicTacToeController extends Controller
      * Set current turn in database
      * @return void
      */
-    public static function setCurrentTurn()
+    public function setCurrentTurn()
     {
         $userId = Session::get('user_id');
         $opponentId = Session::get('current_opponent');
@@ -83,7 +83,7 @@ class TicTacToeController extends Controller
         Redirect::to('tictactoe');
     }
 
-    public static function playGame()
+    public function playGame()
     {
         $userId = Session::get('user_id');
         $opponentId = Session::get('current_opponent');
@@ -107,7 +107,7 @@ class TicTacToeController extends Controller
                 TicTacToeModel::makeMove($gameId, $userId, $move);
 
                 // check for a winner and finish game if found
-                TicTacToeModel::checkWinner($gameId);
+                self::checkForWinner($gameId);
             }
         }
 
@@ -118,7 +118,7 @@ class TicTacToeController extends Controller
      * Updated status - displays current turn and winner
      * @return void
      */
-    public static function status()
+    public function status()
     {
         $userId = Session::get('user_id');
         $opponentId = Session::get('current_opponent');
@@ -146,7 +146,7 @@ class TicTacToeController extends Controller
      * Reset game and delete game data from database
      * @return void
      */
-    public static function resetGame()
+    public function resetGame()
     {
         $currentUserId = Session::get('user_id');
         $currentOpponent = Session::get('current_opponent');
@@ -156,9 +156,56 @@ class TicTacToeController extends Controller
         Redirect::to('tictactoe');
     }
 
-    private static function checkForWinner()
+    private static function checkForWinner($gameId)
     {
+        $board = TicTacToeModel::getBoard($gameId);
 
+        $possibleWinningLines = [
+            // horizontal
+            ['A1', 'A2', 'A3'],
+            ['B1', 'B2', 'B3'],
+            ['C1', 'C2', 'C3'],
+            // vertical
+            ['A1', 'B1', 'C1'],
+            ['A2', 'B2', 'C2'],
+            ['A3', 'B3', 'C3'],
+            // diagnonal
+            ['A1', 'B2', 'C3'],
+            ['A3', 'B2', 'C1'],
+        ];
+
+        foreach ($possibleWinningLines as $line) {
+
+            if (isset($board[$line[0]])) {
+                $a = $board[$line[0]];
+            } 
+            else {
+                $a = null;
+            }
+
+            if (isset($board[$line[1]])) {
+                $b = $board[$line[1]];
+            } 
+            else {
+                $b = null;
+            }
+
+            if (isset($board[$line[2]])) {
+                $c = $board[$line[2]];
+            } 
+            else {
+                $c = null;
+            }
+
+            if ($a && $a === $b && $a === $c) {
+                $game = TicTacToeModel::getGameData($gameId);
+                $winnerUserId = ($a === 'X') ? $game->player_x_id : $game->player_o_id;
+                TicTacToeModel::finishGame($gameId, $winnerUserId);
+                return $winnerUserId;
+            }
+        }
+
+        return false;
     }
 
 }
