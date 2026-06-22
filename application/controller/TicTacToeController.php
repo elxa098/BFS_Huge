@@ -100,11 +100,11 @@ class TicTacToeController extends Controller
 
         if($move){
             $winner = TicTacToeModel::getWinner($gameId);
-            $currentTurnUserId = TicTacToeModel::getCurrentTurn($gameId);
+            $activePlayerId = TicTacToeModel::getCurrentTurn($gameId);
 
-            // only allow move if game not finished and it's user's turn and position is free
-            if(!$winner && $currentTurnUserId == $userId && !TicTacToeModel::isPositionTaken($gameId, $move)){
-                TicTacToeModel::makeMove($gameId, $userId, $move);
+            // only allow move if game not finished, the active player exists and position is free
+            if(!$winner && $activePlayerId && !TicTacToeModel::isPositionTaken($gameId, $move)){
+                TicTacToeModel::makeMove($gameId, $activePlayerId, $move);
 
                 // check for a winner and finish game if found
                 self::checkForWinner($gameId);
@@ -125,18 +125,20 @@ class TicTacToeController extends Controller
 
         $gameId = TicTacToeModel::getGameId($userId, $opponentId);
         $winner = TicTacToeModel::getWinner($gameId);
-        $turn = TicTacToeModel::getCurrentTurn($gameId);
+        $turnUserId = TicTacToeModel::getCurrentTurn($gameId);
 
         if(!$winner){
-            if($turn == "X"){
+            if($turnUserId == $userId){
                 $status = "Du bist dran!";
             }
-            else{ // turn == O
+            else{
                 $status = "Gegner ist dran!";
             }
         }
         else{
-            $status = "Spiel beendet! Gewinner: " . $winner;
+            $winnerProfile = UserModel::getPublicProfileOfUser($winner);
+            $winnerName = $winnerProfile ? $winnerProfile->user_name : $winner;
+            $status = "Spiel beendet! Gewinner: " . $winnerName;
         }
 
         echo json_encode(['status' => $status]);
