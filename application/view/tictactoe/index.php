@@ -26,19 +26,46 @@
      <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/playGame">
         <table class="tictactoe-table">
             <tr>
-                <td><button type="submit" name="move" value="A1"></button></td>
-                <td><button type="submit" name="move" value="A2"></button></td>
-                <td><button type="submit" name="move" value="A3"></button></td>
+                <td>
+                    <?php $pos = 'A1'; $taken = isset($this->data['board'][$pos]); ?>
+                    <button type="submit" name="move" value="A1" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
+                </td>
+                <td>
+                    <?php $pos = 'A2'; $taken = isset($this->data['board'][$pos]); ?>
+                    <button type="submit" name="move" value="A2" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
+                </td>
+                <td>
+                    <?php $pos = 'A3'; $taken = isset($this->data['board'][$pos]); ?>
+                    <button type="submit" name="move" value="A3" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
+                </td>
             </tr>
             <tr>
-                <td><button type="submit" name="move" value="B1"></button></td>
-                <td><button type="submit" name="move" value="B2"></button></td>
-                <td><button type="submit" name="move" value="B3"></button></td>
+                <td>
+                    <?php $pos = 'B1'; $taken = isset($this->data['board'][$pos]); ?>
+                    <button type="submit" name="move" value="B1" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
+                </td>
+                <td>
+                    <?php $pos = 'B2'; $taken = isset($this->data['board'][$pos]); ?>
+                    <button type="submit" name="move" value="B2" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
+                </td>
+                <td>
+                    <?php $pos = 'B3'; $taken = isset($this->data['board'][$pos]); ?>
+                    <button type="submit" name="move" value="B3" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
+                </td>
             </tr>
             <tr>
-                <td><button type="submit" name="move" value="C1"></button></td>
-                <td><button type="submit" name="move" value="C2"></button></td>
-                <td><button type="submit" name="move" value="C3"></button></td>
+                <td>
+                    <?php $pos = 'C1'; $taken = isset($this->data['board'][$pos]); ?>
+                    <button type="submit" name="move" value="C1" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
+                </td>
+                <td>
+                    <?php $pos = 'C2'; $taken = isset($this->data['board'][$pos]); ?>
+                    <button type="submit" name="move" value="C2" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
+                </td>
+                <td>
+                    <?php $pos = 'C3'; $taken = isset($this->data['board'][$pos]); ?>
+                    <button type="submit" name="move" value="C3" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
+                </td>
             </tr>
         </table>
     </form>

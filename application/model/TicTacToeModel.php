@@ -148,7 +148,12 @@ class TicTacToeModel
             ':game_id' => $game_id
         ]);
 
-        return $query->fetchAll();
+        $moves = $query->fetchAll();
+        $board = [];
+        foreach($moves as $m){
+            $board[$m->position] = $m->symbol;
+        }
+        return $board;
     }
 
     /**
@@ -294,4 +299,29 @@ class TicTacToeModel
 
         return $success;
     }
+
+    /**
+     * Get full game data
+     * @param mixed $gameId
+     * @return object
+     */
+    public static function getGameData($gameId)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT *
+            FROM tictactoe_games
+            WHERE id = :game_id
+            LIMIT 1
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([
+            ':game_id' => $gameId
+        ]);
+
+        return $query->fetch();
+    }
 }
+

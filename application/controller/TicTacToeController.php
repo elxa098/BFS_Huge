@@ -14,28 +14,46 @@ class TicTacToeController extends Controller
         $opponentId = Session::get('current_opponent');
         
         $status = "Gegner aussuchen um Spiel zu starten.";
+        $board = [];
+        $isUserTurn = false;
+        $gameFinished = false;
         
         if($opponentId){
             $gameId = TicTacToeModel::getGameId($currentUserId, $opponentId);
+
+            // create game if it doesn't exist
+            if(!$gameId){
+                $gameId = TicTacToeModel::createGame($currentUserId, $opponentId);
+            }
+
             $winner = TicTacToeModel::getWinner($gameId);
-            $turn = TicTacToeModel::getCurrentTurn($gameId);
-            
+            $turnUserId = TicTacToeModel::getCurrentTurn($gameId);
+            $board = TicTacToeModel::getBoard($gameId);
+
             if(!$winner){
-                if($turn == "X"){
+                if($turnUserId == $currentUserId){
                     $status = "Du bist dran!";
+                    $isUserTurn = true;
                 }
-                else{ // turn == O
+                else{
                     $status = "Gegner ist dran!";
+                    $isUserTurn = false;
                 }
             }
             else{
-                $status = "Spiel beendet! Gewinner: " . $winner;
+                $winnerProfile = UserModel::getPublicProfileOfUser($winner);
+                $winnerName = $winnerProfile ? $winnerProfile->user_name : $winner;
+                $status = "Spiel beendet! Gewinner: " . $winnerName;
+                $gameFinished = true;
             }
         }
 
         $this->View->render('tictactoe/index', [
             'users' => UserModel::getAllUsersExcept($currentUserId),
             'status' => $status,
+            'board' => $board,
+            'isUserTurn' => $isUserTurn,
+            'gameFinished' => $gameFinished,
         ]);
     }
 
@@ -69,16 +87,31 @@ class TicTacToeController extends Controller
     {
         $userId = Session::get('user_id');
         $opponentId = Session::get('current_opponent');
+        $move = Request::post('move');
 
-        $gameId = TicTacToeModel::getGameId($userId, $opponentId);
-        $boardId = TicTacToeModel::getBoard($gameId);
-
-        if(!empty($boardId)){
-            $gameId = TicTacToeModel::createGame($userId, $opponentId);
-            $boardId = TicTacToeModel::getBoard($gameId);
+        if(!$opponentId){
+            Redirect::to('tictactoe');
         }
 
+        $gameId = TicTacToeModel::getGameId($userId, $opponentId);
+        if(!$gameId){
+            $gameId = TicTacToeModel::createGame($userId, $opponentId);
+        }
 
+        if($move){
+            $winner = TicTacToeModel::getWinner($gameId);
+            $currentTurnUserId = TicTacToeModel::getCurrentTurn($gameId);
+
+            // only allow move if game not finished and it's user's turn and position is free
+            if(!$winner && $currentTurnUserId == $userId && !TicTacToeModel::isPositionTaken($gameId, $move)){
+                TicTacToeModel::makeMove($gameId, $userId, $move);
+
+                // check for a winner and finish game if found
+                TicTacToeModel::checkWinner($gameId);
+            }
+        }
+
+        Redirect::to('tictactoe');
     }
 
     /**
