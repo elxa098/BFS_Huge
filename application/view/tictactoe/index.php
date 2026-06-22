@@ -2,24 +2,34 @@
     <h1>Tic Tac Toe</h1>
 
     <div class="box">
-        <!-- DROPDOWN -->
+        <div class="tictactoe-header-row">
+            <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/setOpponent" class="player-selection-form">
+                <div class="player-selection">
+                    <label>Play with:</label>
 
-        <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/setOpponent">
-            <div class="player-selection">
-                <label>Play with:</label>
+                    <?php $selectedOpponent = Session::get('current_opponent'); ?>
+                    <select name="opponentId" id="opponentId" onchange="this.form.submit()" hint="Select opponent">
+                        <option value="" <?php if (empty($selectedOpponent)) { echo 'selected'; } ?>>Gegner auswählen</option>
 
-                <?php $selectedOpponent = Session::get('current_opponent'); ?>
-                <select name="opponentId" id="opponentId" onchange="this.form.submit()" hint="Select opponent">
-                    <option value="" <?php if (empty($selectedOpponent)) { echo 'selected'; } ?>>Gegner auswählen</option>
+                        <?php foreach($this->data['users'] as $user): ?>
+                            <option value="<?php echo htmlspecialchars($user->user_id); ?>" <?php if ($selectedOpponent == $user->user_id) { echo 'selected'; } ?>>
+                                <?php echo htmlspecialchars($user->user_name); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+            </form>
 
-                    <?php foreach($this->data['users'] as $user): ?>
-                        <option value="<?php echo htmlspecialchars($user->user_id); ?>" <?php if ($selectedOpponent == $user->user_id) { echo 'selected'; } ?>>
-                            <?php echo htmlspecialchars($user->user_name); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+            <div class="status-panel">
+                <p id="statusLabel"><?php echo htmlspecialchars($this->data['status']); ?></p>
             </div>
-        </form>
+        </div>
+
+        <div class="reset-wrapper">
+            <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/resetGame">
+                <button type="submit">Spiel zurücksetzen</button>
+            </form>
+        </div>
     </div>
 
     <!-- GAME BOARD -->
@@ -70,14 +80,4 @@
         </table>
     </form>
 
-    <div class="box">
-        <!-- STATUS -->
-        <p id="statusLabel"><?php echo htmlspecialchars($this->data['status']); ?></p>
-        
-
-        <!-- RESET GAME -->
-        <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/resetGame">
-            <button type="submit">Spiel zurücksetzen</button>
-        </form>
-    </div>
 </div>
