@@ -27,10 +27,21 @@ class TicTacToeController extends Controller
             }
 
             $winner = TicTacToeModel::getWinner($gameId);
+            $isDraw = TicTacToeModel::isGameDraw($gameId);
             $turnUserId = TicTacToeModel::getCurrentTurn($gameId);
             $board = TicTacToeModel::getBoard($gameId);
 
-            if(!$winner){
+            if($winner){
+                $winnerProfile = UserModel::getPublicProfileOfUser($winner);
+                $winnerName = $winnerProfile ? $winnerProfile->user_name : $winner;
+                $status = "Spiel beendet! Gewinner: " . $winnerName;
+                $gameFinished = true;
+            }
+            elseif ($isDraw) {
+                $status = "Unentschieden!";
+                $gameFinished = true;
+            }
+            else {
                 if($turnUserId == $currentUserId){
                     $status = "Du bist dran!";
                     $isUserTurn = true;
@@ -39,12 +50,6 @@ class TicTacToeController extends Controller
                     $status = "Gegner ist dran!";
                     $isUserTurn = false;
                 }
-            }
-            else{
-                $winnerProfile = UserModel::getPublicProfileOfUser($winner);
-                $winnerName = $winnerProfile ? $winnerProfile->user_name : $winner;
-                $status = "Spiel beendet! Gewinner: " . $winnerName;
-                $gameFinished = true;
             }
         }
 
@@ -125,20 +130,24 @@ class TicTacToeController extends Controller
 
         $gameId = TicTacToeModel::getGameId($userId, $opponentId);
         $winner = TicTacToeModel::getWinner($gameId);
+        $isDraw = TicTacToeModel::isGameDraw($gameId);
         $turnUserId = TicTacToeModel::getCurrentTurn($gameId);
 
-        if(!$winner){
+        if($winner){
+            $winnerProfile = UserModel::getPublicProfileOfUser($winner);
+            $winnerName = $winnerProfile ? $winnerProfile->user_name : $winner;
+            $status = "Spiel beendet! Gewinner: " . $winnerName;
+        }
+        elseif ($isDraw) {
+            $status = "Unentschieden!";
+        }
+        else{
             if($turnUserId == $userId){
                 $status = "Du bist dran!";
             }
             else{
                 $status = "Gegner ist dran!";
             }
-        }
-        else{
-            $winnerProfile = UserModel::getPublicProfileOfUser($winner);
-            $winnerName = $winnerProfile ? $winnerProfile->user_name : $winner;
-            $status = "Spiel beendet! Gewinner: " . $winnerName;
         }
 
         echo json_encode(['status' => $status]);
@@ -205,6 +214,11 @@ class TicTacToeController extends Controller
                 TicTacToeModel::finishGame($gameId, $winnerUserId);
                 return $winnerUserId;
             }
+        }
+
+        if (count($board) === 9) {
+            TicTacToeModel::finishGame($gameId, null);
+            return null;
         }
 
         return false;

@@ -122,6 +122,21 @@ class TicTacToeModel
     }
 
     /**
+     * Returns true when the game ended in a draw
+     * @param mixed $gameId
+     * @return bool
+     */
+    public static function isGameDraw($gameId)
+    {
+        if (self::getWinner($gameId)) {
+            return false;
+        }
+
+        $board = self::getBoard($gameId);
+        return count($board) === 9;
+    }
+
+    /**
      * Gets board
      * @param mixed $game_id
      * @return array
