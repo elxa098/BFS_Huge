@@ -8,7 +8,7 @@ class TicTacToeController extends Controller
         Auth::checkAuthentication();
     }
 
-    public function index()
+    public static function index()
     {
         $currentUserId = Session::get('user_id');
         $opponentId = Session::get('current_opponent');
@@ -61,7 +61,7 @@ class TicTacToeController extends Controller
      * Set opponent ID as environmental variable
      * @return void
      */
-    public function setOpponent()
+    public static function setOpponent()
     {
         Session::set('current_opponent', Request::post('opponentId'));
         Redirect::to('tictactoe');
@@ -71,7 +71,7 @@ class TicTacToeController extends Controller
      * Set current turn in database
      * @return void
      */
-    public function setCurrentTurn()
+    public static function setCurrentTurn()
     {
         $userId = Session::get('user_id');
         $opponentId = Session::get('current_opponent');
@@ -83,7 +83,7 @@ class TicTacToeController extends Controller
         Redirect::to('tictactoe');
     }
 
-    public function playGame()
+    public static function playGame()
     {
         $userId = Session::get('user_id');
         $opponentId = Session::get('current_opponent');
@@ -118,7 +118,7 @@ class TicTacToeController extends Controller
      * Updated status - displays current turn and winner
      * @return void
      */
-    public function status()
+    public static function status()
     {
         $userId = Session::get('user_id');
         $opponentId = Session::get('current_opponent');
@@ -146,7 +146,7 @@ class TicTacToeController extends Controller
      * Reset game and delete game data from database
      * @return void
      */
-    public function resetGame()
+    public static function resetGame()
     {
         $currentUserId = Session::get('user_id');
         $currentOpponent = Session::get('current_opponent');
@@ -156,6 +156,9 @@ class TicTacToeController extends Controller
         Redirect::to('tictactoe');
     }
 
-    
+    private static function checkForWinner()
+    {
+
+    }
 
 }
