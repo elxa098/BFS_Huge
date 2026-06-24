@@ -230,13 +230,19 @@ class TicTacToeController extends Controller
             if ($a && $a === $b && $a === $c) {
                 $game = TicTacToeModel::getGameData($gameId);
                 $winnerUserId = ($a === 'X') ? $game->player_x_id : $game->player_o_id;
+                if($a === 'X'){
+                    $winnerUserId = $game->player_x_id;
+                }
+                else{
+                    $winnerUserId = $game->game_o_id;
+                }
                 TicTacToeModel::finishGame($gameId, $winnerUserId);
                 return $winnerUserId;
             }
         }
 
         if (count($board) === 9) {
-            TicTacToeModel::finishGame($gameId, null);
+            TicTacToeModel::finishGame($gameId, -1);
             return null;
         }
 
