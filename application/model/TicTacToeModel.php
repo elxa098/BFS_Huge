@@ -1,13 +1,14 @@
 <?php
 class TicTacToeModel
 {
+
     /**
      * Creates a new game
      * @param mixed $creatorId
      * @param mixed $opponentId
      * @return bool|string
      */
-    public static function createGame($creatorId, $opponentId)
+    public static function createNewGame($creatorId, $opponentId)
     {
         $conn = DatabaseFactory::getFactory()->getConnection();
 
@@ -28,6 +29,175 @@ class TicTacToeModel
         }
 
         return $conn->lastInsertId();
+    }
+
+    /**
+     * Gets game id
+     * @param mixed $player1
+     * @param mixed $player2
+     */
+    public static function getGameId($player1, $player2)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT id
+            FROM tictactoe_games
+            WHERE (player_x_id = :p1 AND player_o_id = :p2)
+            OR (player_x_id = :p2 AND player_o_id = :p1)
+            LIMIT 1
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([
+            ':p1' => $player1,
+            ':p2' => $player2
+        ]);
+
+        $result = $query->fetch();
+
+        if(!$result){
+            return false;
+        }
+
+        return $result->id;
+    }
+
+    /**
+     * Get full game data
+     * @param mixed $gameId
+     * @return object
+     */
+    public static function getGameData($gameId)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT *
+            FROM tictactoe_games
+            WHERE id = :game_id
+            LIMIT 1
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([
+            ':game_id' => $gameId
+        ]);
+
+        return $query->fetch();
+    }
+
+    /**
+     * Returns true when the game ended in a draw
+     * @param mixed $gameId
+     * @return bool
+     */
+    public static function isGameDraw($gameId)
+    {
+        if (self::getWinnerId($gameId)) {
+            return false;
+        }
+
+        $board = self::getBoard($gameId);
+        return count($board) === 9;
+    }
+
+    /**
+     * Gets board
+     * @param mixed $game_id
+     * @return array
+     */
+    public static function getBoard($game_id)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT
+                m.position,
+                CASE
+                    WHEN m.user_id = g.player_x_id THEN 'X'
+                    ELSE 'O'
+                END AS symbol
+            FROM tictactoe_moves m
+            JOIN tictactoe_games g
+                ON g.id = m.game_id
+            WHERE m.game_id = :game_id
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([
+            ':game_id' => $game_id
+        ]);
+
+        $moves = $query->fetchAll();
+        $board = [];
+        foreach($moves as $m){
+            $board[$m->position] = $m->symbol;
+        }
+        return $board;
+    }
+
+    /**
+     * Checks if a position in a game is taken
+     * @param mixed $gameId
+     * @param mixed $position
+     * @return bool
+     */
+    public static function isPositionTaken($gameId, $position)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT 1
+            FROM tictactoe_moves
+            WHERE game_id = :game_id
+            AND position = :position
+            LIMIT 1
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([
+            ':game_id' => $gameId,
+            ':position' => $position
+        ]);
+
+        return (bool) $query->fetchAll();
+    }
+
+    /**
+     * Get the ID of the user which turn it is
+     * @param mixed $gameId
+     */
+    public static function getCurrentTurn($gameId)
+    {
+        $conn = DatabaseFactory::getFactory()->getConnection();
+
+        $sql = "
+            SELECT
+                CASE
+                    WHEN COUNT(m.id) % 2 = 0 THEN g.player_x_id
+                    ELSE g.player_o_id
+                END AS current_user_id
+            FROM tictactoe_games g
+            LEFT JOIN tictactoe_moves m
+                ON m.game_id = g.id
+            WHERE g.id = :game_id
+            GROUP BY g.id
+            LIMIT 1
+        ";
+
+        $query = $conn->prepare($sql);
+        $query->execute([
+            ':game_id' => $gameId
+        ]);
+
+        $result = $query->fetch();
+
+        if(!$result){
+            return false;
+        }
+
+        return $result->current_user_id;
     }
 
     /**
@@ -96,7 +266,7 @@ class TicTacToeModel
      * Gets the winner
      * @param mixed $gameId
      */
-    public static function getWinner($gameId)
+    public static function getWinnerId($gameId)
     {
         $conn = DatabaseFactory::getFactory()->getConnection();
 
@@ -119,56 +289,6 @@ class TicTacToeModel
         }
 
         return $result->winner_id;
-    }
-
-    /**
-     * Returns true when the game ended in a draw
-     * @param mixed $gameId
-     * @return bool
-     */
-    public static function isGameDraw($gameId)
-    {
-        if (self::getWinner($gameId)) {
-            return false;
-        }
-
-        $board = self::getBoard($gameId);
-        return count($board) === 9;
-    }
-
-    /**
-     * Gets board
-     * @param mixed $game_id
-     * @return array
-     */
-    public static function getBoard($game_id)
-    {
-        $conn = DatabaseFactory::getFactory()->getConnection();
-
-        $sql = "
-            SELECT
-                m.position,
-                CASE
-                    WHEN m.user_id = g.player_x_id THEN 'X'
-                    ELSE 'O'
-                END AS symbol
-            FROM tictactoe_moves m
-            JOIN tictactoe_games g
-                ON g.id = m.game_id
-            WHERE m.game_id = :game_id
-        ";
-
-        $query = $conn->prepare($sql);
-        $query->execute([
-            ':game_id' => $game_id
-        ]);
-
-        $moves = $query->fetchAll();
-        $board = [];
-        foreach($moves as $m){
-            $board[$m->position] = $m->symbol;
-        }
-        return $board;
     }
 
     /**
@@ -195,148 +315,4 @@ class TicTacToeModel
             ]);
     }
 
-    /**
-     * Gets game id
-     * @param mixed $player1
-     * @param mixed $player2
-     */
-    public static function getGameId($player1, $player2)
-    {
-        $conn = DatabaseFactory::getFactory()->getConnection();
-
-        $sql = "
-            SELECT id
-            FROM tictactoe_games
-            WHERE (player_x_id = :p1 AND player_o_id = :p2)
-            OR (player_x_id = :p2 AND player_o_id = :p1)
-            LIMIT 1
-        ";
-
-        $query = $conn->prepare($sql);
-        $query->execute([
-            ':p1' => $player1,
-            ':p2' => $player2
-        ]);
-
-        $result = $query->fetch();
-
-        if(!$result){
-            return false;
-        }
-
-        return $result->id;
-    }
-
-    /**
-     * Checks if a position in a game is taken
-     * @param mixed $gameId
-     * @param mixed $position
-     * @return bool
-     */
-    public static function isPositionTaken($gameId, $position)
-    {
-        $conn = DatabaseFactory::getFactory()->getConnection();
-
-        $sql = "
-            SELECT 1
-            FROM tictactoe_moves
-            WHERE game_id = :game_id
-            AND position = :position
-            LIMIT 1
-        ";
-
-        $query = $conn->prepare($sql);
-        $query->execute([
-            ':game_id' => $gameId,
-            ':position' => $position
-        ]);
-
-        return (bool) $query->fetchAll();
-    }
-
-    /**
-     * Get the ID of the user which turn it is
-     * @param mixed $gameId
-     */
-    public static function getCurrentTurn($gameId)
-    {
-        $conn = DatabaseFactory::getFactory()->getConnection();
-
-        $sql = "
-            SELECT
-                CASE
-                    WHEN COUNT(m.id) % 2 = 0 THEN g.player_x_id
-                    ELSE g.player_o_id
-                END AS current_user_id
-            FROM tictactoe_games g
-            LEFT JOIN tictactoe_moves m
-                ON m.game_id = g.id
-            WHERE g.id = :game_id
-            GROUP BY g.id
-            LIMIT 1
-        ";
-
-        $query = $conn->prepare($sql);
-        $query->execute([
-            ':game_id' => $gameId
-        ]);
-
-        $result = $query->fetch();
-
-        if(!$result){
-            return false;
-        }
-
-        return $result->current_user_id;
-    }
-
-    /**
-     * Set the current turn in the game
-     * @param mixed $gameId
-     * @param mixed $turn
-     * @return bool
-     */
-    public static function setCurrentTurn($gameId, $turn)
-    {
-        $conn = DatabaseFactory::getFactory()->getConnection();
-
-        $sql = "
-            UPDATE tictactoe_games
-            SET current_turn = :turn
-            WHERE id = :game_id
-        ";
-
-        $query = $conn->prepare($sql);
-        $success = $query->execute([
-            ':turn' => $turn,
-            ':game_id' => $gameId
-        ]);
-
-        return $success;
-    }
-
-    /**
-     * Get full game data
-     * @param mixed $gameId
-     * @return object
-     */
-    public static function getGameData($gameId)
-    {
-        $conn = DatabaseFactory::getFactory()->getConnection();
-
-        $sql = "
-            SELECT *
-            FROM tictactoe_games
-            WHERE id = :game_id
-            LIMIT 1
-        ";
-
-        $query = $conn->prepare($sql);
-        $query->execute([
-            ':game_id' => $gameId
-        ]);
-
-        return $query->fetch();
-    }
 }
-

@@ -101,7 +101,6 @@ class TicTacToeController extends Controller
         $turn = Request::post('turn');
 
         $gameId = TicTacToeModel::getGameId($userId, $opponentId);
-        TicTacToeModel::setCurrentTurn($gameId, $turn);
         
         Redirect::to('tictactoe');
     }
@@ -209,7 +208,7 @@ class TicTacToeController extends Controller
         $gameId = TicTacToeModel::getGameId($userId, $opponentId);
 
         if(!$gameId){
-            $gameId = TicTacToeModel::createGame($userId, $opponentId);
+            $gameId = TicTacToeModel::createNewGame($userId, $opponentId);
         }
 
         return $gameId;
