@@ -6,6 +6,20 @@
  */
 class TicTacToeController extends Controller
 {
+    private const WINNING_LINES = [
+        // horizontal
+        ['A1', 'A2', 'A3'],
+        ['B1', 'B2', 'B3'],
+        ['C1', 'C2', 'C3'],
+        // vertical
+        ['A1', 'B1', 'C1'],
+        ['A2', 'B2', 'C2'],
+        ['A3', 'B3', 'C3'],
+        // diagnonal
+        ['A1', 'B2', 'C3'],
+        ['A3', 'B2', 'C1'],
+    ];
+
     /**
      * Construct this objet extending the basic controller
      */
@@ -30,25 +44,18 @@ class TicTacToeController extends Controller
         $gameFinished = false;
         
         if($opponentId){
-            $gameId = TicTacToeModel::getGameId($currentUserId, $opponentId);
+            $gameId = self::getOrCreateGame($currentUserId, $opponentId);
 
-            // create game if it doesn't exist
-            if(!$gameId){
-                $gameId = TicTacToeModel::createGame($currentUserId, $opponentId);
-            }
-
-            $winner = TicTacToeModel::getWinner($gameId);
+            $winner = TicTacToeModel::getWinnerId($gameId);
             $isDraw = TicTacToeModel::isGameDraw($gameId);
             $turnUserId = TicTacToeModel::getCurrentTurn($gameId);
             $board = TicTacToeModel::getBoard($gameId);
 
             if($winner){
-                $winnerProfile = UserModel::getPublicProfileOfUser($winner);
-                $winnerName = $winnerProfile ? $winnerProfile->user_name : $winner;
-                $status = "Spiel beendet! Gewinner: " . $winnerName;
+                $status = "Spiel beendet! Gewinner: " . self::getWinnerName($winner);
                 $gameFinished = true;
             }
-            elseif ($isDraw) {
+            else if ($isDraw) {
                 $status = "Unentschieden!";
                 $gameFinished = true;
             }
@@ -109,63 +116,22 @@ class TicTacToeController extends Controller
         $opponentId = Session::get('current_opponent');
         $move = Request::post('move');
 
-        if(!$opponentId){
+        if(!$opponentId || !$move){
             Redirect::to('tictactoe');
         }
 
-        $gameId = TicTacToeModel::getGameId($userId, $opponentId);
-        if(!$gameId){
-            $gameId = TicTacToeModel::createGame($userId, $opponentId);
-        }
+        $gameId = self::getOrCreateGame($userId, $opponentId);
 
-        if($move){
-            $winner = TicTacToeModel::getWinner($gameId);
-            $activePlayerId = TicTacToeModel::getCurrentTurn($gameId);
+        $winnerId = TicTacToeModel::getWinnerId($gameId);
+        $activePlayerId = TicTacToeModel::getCurrentTurn($gameId);
+        $isPossitionTaken = TicTacToeModel::isPositionTaken($gameId, $move);
 
-            // only allow move if game not finished, the active player exists and position is free
-            if(!$winner && $activePlayerId && !TicTacToeModel::isPositionTaken($gameId, $move)){
-                TicTacToeModel::makeMove($gameId, $activePlayerId, $move);
-
-                // check for a winner and finish game if found
-                self::checkForWinner($gameId);
-            }
+        if(!$winnerId && $activePlayerId && !$isPossitionTaken){
+            TicTacToeModel::makeMove($gameId, $activePlayerId, $move);
+            self::checkForWinner($gameId);
         }
 
         Redirect::to('tictactoe');
-    }
-
-    /**
-     * Updated status - displays current turn and winner
-     * @return void
-     */
-    public function status()
-    {
-        $userId = Session::get('user_id');
-        $opponentId = Session::get('current_opponent');
-
-        $gameId = TicTacToeModel::getGameId($userId, $opponentId);
-        $winner = TicTacToeModel::getWinner($gameId);
-        $isDraw = TicTacToeModel::isGameDraw($gameId);
-        $turnUserId = TicTacToeModel::getCurrentTurn($gameId);
-
-        if($winner){
-            $winnerProfile = UserModel::getPublicProfileOfUser($winner);
-            $winnerName = $winnerProfile ? $winnerProfile->user_name : $winner;
-            $status = "Spiel beendet! Gewinner: " . $winnerName;
-        }
-        elseif ($isDraw) {
-            $status = "Unentschieden!";
-        }
-        else{
-            if($turnUserId == $userId){
-                $status = "Du bist dran!";
-            }
-            else{
-                $status = "Gegner ist dran!";
-            }
-        }
-
-        echo json_encode(['status' => $status]);
     }
 
     /**
@@ -179,6 +145,7 @@ class TicTacToeController extends Controller
 
         $gameId = TicTacToeModel::getGameId($currentUserId, $currentOpponent);
         TicTacToeModel::deleteGame($gameId);
+
         Redirect::to('tictactoe');
     }
 
@@ -190,51 +157,19 @@ class TicTacToeController extends Controller
     {
         $board = TicTacToeModel::getBoard($gameId);
 
-        $possibleWinningLines = [
-            // horizontal
-            ['A1', 'A2', 'A3'],
-            ['B1', 'B2', 'B3'],
-            ['C1', 'C2', 'C3'],
-            // vertical
-            ['A1', 'B1', 'C1'],
-            ['A2', 'B2', 'C2'],
-            ['A3', 'B3', 'C3'],
-            // diagnonal
-            ['A1', 'B2', 'C3'],
-            ['A3', 'B2', 'C1'],
-        ];
+        foreach (self::WINNING_LINES as $line) {
 
-        foreach ($possibleWinningLines as $line) {
+            if (isset($board[$line[0]])) { $firstCell = $board[$line[0]]; } else { $firstCell = null; }
+            if (isset($board[$line[1]])) { $secondCell = $board[$line[1]]; } else { $secondCell = null; }
+            if (isset($board[$line[2]])) { $thirdCell = $board[$line[2]]; } else { $thirdCell = null; }
 
-            if (isset($board[$line[0]])) {
-                $a = $board[$line[0]];
-            } 
-            else {
-                $a = null;
-            }
-
-            if (isset($board[$line[1]])) {
-                $b = $board[$line[1]];
-            } 
-            else {
-                $b = null;
-            }
-
-            if (isset($board[$line[2]])) {
-                $c = $board[$line[2]];
-            } 
-            else {
-                $c = null;
-            }
-
-            if ($a && $a === $b && $a === $c) {
+            if ($firstCell && $firstCell === $secondCell && $firstCell === $thirdCell) {
                 $game = TicTacToeModel::getGameData($gameId);
-                $winnerUserId = ($a === 'X') ? $game->player_x_id : $game->player_o_id;
-                if($a === 'X'){
+                if($firstCell === 'X'){
                     $winnerUserId = $game->player_x_id;
                 }
                 else{
-                    $winnerUserId = $game->game_o_id;
+                    $winnerUserId = $game->player_o_id;
                 }
                 TicTacToeModel::finishGame($gameId, $winnerUserId);
                 return $winnerUserId;
@@ -247,6 +182,37 @@ class TicTacToeController extends Controller
         }
 
         return false;
+    }
+
+    /**
+     * Gets the winner name from the user ID
+     * @param mixed $winnerId
+     */
+    private static function getWinnerName($winnerId)
+    {
+        $winnerProfile = UserModeL::getPublicProfileOfUser($winnerId);
+
+        if($winnerProfile){
+            return $winnerProfile->user_name;
+        }
+
+        return $winnerId;
+    }
+
+    /**
+     * Get the game ID (creates a game when there isn't already one)
+     * @param mixed $userId
+     * @param mixed $opponentId
+     */
+    private static function getOrCreateGame($userId, $opponentId)
+    {
+        $gameId = TicTacToeModel::getGameId($userId, $opponentId);
+
+        if(!$gameId){
+            $gameId = TicTacToeModel::createGame($userId, $opponentId);
+        }
+
+        return $gameId;
     }
 
 }
