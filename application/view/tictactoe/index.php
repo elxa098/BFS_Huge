@@ -1,86 +1,83 @@
 <div class="container">
     <h1>Tic Tac Toe</h1>
 
+    <?php
+        $url = Config::get('URL');
+        $selectedOpponent = Session::get('current_opponent');
+        $board = $this->data['board'];
+        $isUserTurn = $this->data['isUserTurn'];
+        $gameFinished = $this->data['gameFinished'] ?? false;
+
+        $rows = [
+            ['A1', 'A2', 'A3'],
+            ['B1', 'B2', 'B3'],
+            ['C1', 'C2', 'C3']
+        ];
+    ?>
+
     <div class="box">
-        <!-- Dropdown -->
+        <!-- Dropdown + Status -->
         <div class="tictactoe-header-row">
-            <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/setOpponent" class="player-selection-form">
+
+            <form method="POST" action="<?= $url ?>tictactoe/setOpponent" class="player-selection-form">
                 <div class="player-selection">
                     <label>Play with:</label>
 
-                    <?php $selectedOpponent = Session::get('current_opponent'); ?>
-                    <select name="opponentId" id="opponentId" onchange="this.form.submit()" hint="Select opponent">
-                        <option value="" <?php if (empty($selectedOpponent)) { echo 'selected'; } ?>>Gegner auswählen</option>
+                    <select name="opponentId" id="opponentId" onchange="this.form.submit()">
+                        <option value="" <?= empty($selectedOpponent) ? 'selected' : '' ?>>
+                            Gegner auswählen
+                        </option>
 
-                        <?php foreach($this->data['users'] as $user): ?>
-                            <option value="<?php echo htmlspecialchars($user->user_id); ?>" <?php if ($selectedOpponent == $user->user_id) { echo 'selected'; } ?>>
-                                <?php echo htmlspecialchars($user->user_name); ?>
+                        <?php foreach ($this->data['users'] as $user): ?>
+                            <option value="<?= htmlspecialchars($user->user_id) ?>"
+                                <?= ($selectedOpponent == $user->user_id) ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($user->user_name) ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
             </form>
-            
-            <!-- Status Messages -->
+
             <div class="status-panel">
-                <p id="statusLabel"><?php echo htmlspecialchars($this->data['status']); ?></p>
+                <p id="statusLabel"><?= htmlspecialchars($this->data['status']) ?></p>
             </div>
+
         </div>
 
-        <!-- Reset Button -->
+        <!-- Reset -->
         <div class="reset-wrapper">
-            <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/resetGame">
+            <form method="POST" action="<?= $url ?>tictactoe/resetGame">
                 <button type="submit">Spiel zurücksetzen</button>
             </form>
         </div>
     </div>
 
     <!-- GAME BOARD -->
-     <form method="POST" action="<?= Config::get('URL'); ?>tictactoe/playGame">
+    <form method="POST" action="<?= $url ?>tictactoe/playGame">
         <table class="tictactoe-table">
-            <tr>
-                <td>
-                    <?php $pos = 'A1'; $taken = isset($this->data['board'][$pos]); ?>
-                    <button type="submit" name="move" value="A1" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
-                </td>
-                <td>
-                    <?php $pos = 'A2'; $taken = isset($this->data['board'][$pos]); ?>
-                    <button type="submit" name="move" value="A2" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
-                </td>
-                <td>
-                    <?php $pos = 'A3'; $taken = isset($this->data['board'][$pos]); ?>
-                    <button type="submit" name="move" value="A3" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <?php $pos = 'B1'; $taken = isset($this->data['board'][$pos]); ?>
-                    <button type="submit" name="move" value="B1" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
-                </td>
-                <td>
-                    <?php $pos = 'B2'; $taken = isset($this->data['board'][$pos]); ?>
-                    <button type="submit" name="move" value="B2" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
-                </td>
-                <td>
-                    <?php $pos = 'B3'; $taken = isset($this->data['board'][$pos]); ?>
-                    <button type="submit" name="move" value="B3" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <?php $pos = 'C1'; $taken = isset($this->data['board'][$pos]); ?>
-                    <button type="submit" name="move" value="C1" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
-                </td>
-                <td>
-                    <?php $pos = 'C2'; $taken = isset($this->data['board'][$pos]); ?>
-                    <button type="submit" name="move" value="C2" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
-                </td>
-                <td>
-                    <?php $pos = 'C3'; $taken = isset($this->data['board'][$pos]); ?>
-                    <button type="submit" name="move" value="C3" <?php echo ($taken || !$this->data['isUserTurn'] || ($this->data['gameFinished'] ?? false)) ? 'disabled' : ''; ?>><?php echo $taken ? htmlspecialchars($this->data['board'][$pos]) : ''; ?></button>
-                </td>
-            </tr>
+
+            <?php foreach ($rows as $row): ?>
+                <tr>
+                    <?php foreach ($row as $pos): ?>
+                        <?php
+                            $taken = isset($board[$pos]);
+                            $value = $taken ? htmlspecialchars($board[$pos]) : '';
+                            $disabled = $taken || !$isUserTurn || $gameFinished;
+                        ?>
+
+                        <td>
+                            <button type="submit"
+                                    name="move"
+                                    value="<?= $pos ?>"
+                                    <?= $disabled ? 'disabled' : '' ?>>
+                                <?= $value ?>
+                            </button>
+                        </td>
+
+                    <?php endforeach; ?>
+                </tr>
+            <?php endforeach; ?>
+
         </table>
     </form>
-
 </div>
