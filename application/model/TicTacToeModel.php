@@ -1,4 +1,8 @@
 <?php
+
+/**
+ * This class handles all database operation regarting TicTacToe
+ */
 class TicTacToeModel
 {
 
@@ -314,5 +318,4 @@ class TicTacToeModel
             ':game_id' => $game_id,
             ]);
     }
-
 }

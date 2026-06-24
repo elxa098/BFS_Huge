@@ -6,7 +6,7 @@
  */
 class TicTacToeController extends Controller
 {
-    private const WINNING_LINES = [
+    private const WINNING_LINES = [ // All possible winning versions
         // horizontal
         ['A1', 'A2', 'A3'],
         ['B1', 'B2', 'B3'],
@@ -87,21 +87,6 @@ class TicTacToeController extends Controller
     public function setOpponent()
     {
         Session::set('current_opponent', Request::post('opponentId'));
-        Redirect::to('tictactoe');
-    }
-
-    /**
-     * Set current turn in database
-     * @return void
-     */
-    public function setCurrentTurn()
-    {
-        $userId = Session::get('user_id');
-        $opponentId = Session::get('current_opponent');
-        $turn = Request::post('turn');
-
-        $gameId = TicTacToeModel::getGameId($userId, $opponentId);
-        
         Redirect::to('tictactoe');
     }
 

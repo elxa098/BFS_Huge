@@ -18,7 +18,7 @@
     <div class="box">
         <!-- Dropdown + Status -->
         <div class="tictactoe-header-row">
-
+            <!-- Dropdown -->
             <form method="POST" action="<?= $url ?>tictactoe/setOpponent" class="player-selection-form">
                 <div class="player-selection">
                     <label>Play with:</label>
@@ -37,7 +37,8 @@
                     </select>
                 </div>
             </form>
-
+            
+            <!-- Status -->
             <div class="status-panel">
                 <p id="statusLabel"><?= htmlspecialchars($this->data['status']) ?></p>
             </div>
