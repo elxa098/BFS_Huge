@@ -9,6 +9,7 @@
     <!-- CSS -->
     <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/style.css" />
     <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/messenger.css" />
+    <link rel="stylesheet" href="<?php echo Config::get('URL'); ?>css/tictactoe.css" />
     <!-- jQuery (required for DataTables) -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <!-- DataTables CSS -->
@@ -68,6 +69,10 @@
 
                 <li <?php if (View::checkForActiveController($filename, "picture")) { echo ' class="active" '; } ?>>
                     <a href="<?= Config::get('URL'); ?>pictures/index">Gallery</a>
+                </li>
+
+                <li <?php if (View::checkForActiveController($filename,"tictactoe")) { echo ' class="active" '; } ?>>
+                    <a href="<?= Config::get('URL'); ?>tictactoe/index">TicTacToe</a>
                 </li>
 
             <?php } else { ?>
