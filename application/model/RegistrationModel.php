@@ -81,16 +81,16 @@ class RegistrationModel
      */
     public static function registrationInputValidation($user_name, $user_password_new, $user_password_repeat, $user_email, $user_email_repeat)
     {
+        // basic input validations
+        if (self::validateUserName($user_name) && self::validateUserEmail($user_email, $user_email_repeat) && self::validateUserPassword($user_password_new, $user_password_repeat)) {
+            return true;
+        }
+
         // verify reCAPTCHA
         $recaptcha_response = Request::post('g-recaptcha-response');
         if (!self::verifyRecaptcha($recaptcha_response)) {
             Session::add('feedback_negative', 'reCAPTCHA verification failed. Please try again.');
             return false;
-        }
-
-        // basic input validations
-        if (self::validateUserName($user_name) && self::validateUserEmail($user_email, $user_email_repeat) && self::validateUserPassword($user_password_new, $user_password_repeat)) {
-            return true;
         }
 
         return false;
