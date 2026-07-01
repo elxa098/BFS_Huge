@@ -16,6 +16,12 @@
             <input type="password" name="user_password_new" pattern=".{6,}" placeholder="Password (6+ characters)" required autocomplete="off" />
             <input type="password" name="user_password_repeat" pattern=".{6,}" required placeholder="Repeat your password" autocomplete="off" />
 
+            <!-- reCAPTCHA -->
+            <div class="g-recaptcha" data-sitekey="<?php echo Config::get('RECAPTCHA_SITEKEY'); ?>">
+            </div>
+
+            <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
             <input type="submit" value="Register" />
         </form>
     </div>
