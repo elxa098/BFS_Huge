@@ -249,9 +249,10 @@ class RegistrationModel
         if (empty($response)){
             return false;
         }
-        $secret = Config::get('RECAPTCHA_SECRET');
+
+        $secretKey = Config::get('RECAPTCHA_SECRET');
         $url = 'https://www.google.com/recaptcha/api/siteverify?secret=' 
-                . urlencode($secret) 
+                . urlencode($secretKey) 
                 . '&response=' 
                 . urlencode($response);
         $result = @file_get_contents($url);
