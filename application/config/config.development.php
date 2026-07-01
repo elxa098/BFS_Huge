@@ -76,6 +76,12 @@ return array(
     'CAPTCHA_WIDTH' => 359,
     'CAPTCHA_HEIGHT' => 100,
     /**
+     * Configuration for: Google reCAPTCHA
+     * Set these to your keys. Keep the secret key private.
+     */
+    'RECAPTCHA_SITEKEY' => '6Lci_j4tAAAAAEk7Ap5pGiiAtI4UTw1KhzCmfkse',
+    'RECAPTCHA_SECRET' => '6Lci_j4tAAAAAMAwwNa-tyb3HBPftZg0JtYAId_9',
+    /**
      * Configuration for: Cookies
      * 1209600 seconds = 2 weeks
      * COOKIE_PATH is the path the cookie is valid on, usually "/" to make it valid on the whole domain.
