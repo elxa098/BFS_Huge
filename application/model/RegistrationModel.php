@@ -23,7 +23,7 @@ class RegistrationModel
         $user_password_repeat = Request::post('user_password_repeat');
 
         // stop registration flow if registrationInputValidation() returns false (= anything breaks the input check rules)
-        $validation_result = self::registrationInputValidation(Request::post('captcha'), $user_name, $user_password_new, $user_password_repeat, $user_email, $user_email_repeat);
+        $validation_result = self::registrationInputValidation($user_name, $user_password_new, $user_password_repeat, $user_email, $user_email_repeat);
         if (!$validation_result) {
             return false;
         }
@@ -79,16 +79,20 @@ class RegistrationModel
      *
      * @return bool
      */
-    public static function registrationInputValidation($captcha, $user_name, $user_password_new, $user_password_repeat, $user_email, $user_email_repeat)
+    public static function registrationInputValidation($user_name, $user_password_new, $user_password_repeat, $user_email, $user_email_repeat)
     {
-        $return = true;
-
-        // if username, email and password are all correctly validated, but make sure they all run on first sumbit
-        if (self::validateUserName($user_name) AND self::validateUserEmail($user_email, $user_email_repeat) AND self::validateUserPassword($user_password_new, $user_password_repeat) AND $return) {
+        // basic input validations
+        if (self::validateUserName($user_name) && self::validateUserEmail($user_email, $user_email_repeat) && self::validateUserPassword($user_password_new, $user_password_repeat)) {
             return true;
         }
 
-        // otherwise, return false
+        // verify reCAPTCHA
+        $recaptcha_response = Request::post('g-recaptcha-response');
+        if (!self::verifyRecaptcha($recaptcha_response)) {
+            Session::add('feedback_negative', 'reCAPTCHA verification failed. Please try again.');
+            return false;
+        }
+
         return false;
     }
 
@@ -238,5 +242,26 @@ class RegistrationModel
 
         Session::add('feedback_positive', Text::get('FEEDBACK_ACCOUNT_ACTIVATION_SUCCESSFUL'));
         return true;
+    }
+
+    protected static function verifyRecaptcha($response)
+    {
+        if (empty($response)){
+            return false;
+        }
+
+        $secretKey = Config::get('RECAPTCHA_SECRET');
+        $url = 'https://www.google.com/recaptcha/api/siteverify?secret=' 
+                . urlencode($secretKey) 
+                . '&response=' 
+                . urlencode($response);
+        $result = @file_get_contents($url);
+
+        if (!$result){
+            return false;
+        }
+        $data = json_decode($result, true);
+
+        return !empty($data['success']);
     }
 }
